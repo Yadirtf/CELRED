@@ -1,6 +1,7 @@
 import { Product } from '../../core/entities/Product';
 import { IProductRepository } from '../../core/repositories/IProductRepository';
 import ProductModel from '../models/ProductModel';
+import '../models/BrandModel'; // Ensure Brand model is registered
 import dbConnect from '../database/mongoose';
 
 export class MongoProductRepository implements IProductRepository {
