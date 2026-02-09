@@ -5,6 +5,8 @@ import { Edit, Trash2, Plus, ShoppingBag } from 'lucide-react';
 import ProductForm from '@/components/admin/ProductForm';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import { Eye } from 'lucide-react';
+import ProductFilter from '@/components/ProductFilter';
+import { Brand } from '@/core/entities/Brand';
 
 export default function ProductList() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -14,11 +16,16 @@ export default function ProductList() {
     const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
+    // Filter states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedBrand, setSelectedBrand] = useState('all');
+    const [brands, setBrands] = useState<Brand[]>([]);
+
     const fetchProducts = async () => {
         try {
             const res = await fetch('/api/products');
             const data = await res.json();
-            setProducts(data);
+            setProducts(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Failed to fetch products', error);
         } finally {
@@ -26,8 +33,19 @@ export default function ProductList() {
         }
     };
 
+    const fetchBrands = async () => {
+        try {
+            const res = await fetch('/api/brands');
+            const data = await res.json();
+            setBrands(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Failed to fetch brands', error);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
+        fetchBrands();
     }, []);
 
     const handleDelete = async (id: string) => {
@@ -101,6 +119,19 @@ export default function ProductList() {
         fetchProducts();
     };
 
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const brandId = typeof product.brand === 'object' && product.brand !== null
+            ? (product.brand as any)._id || (product.brand as Brand).id
+            : product.brand;
+
+        const matchesBrand = selectedBrand === 'all' || brandId === selectedBrand;
+
+        return matchesSearch && matchesBrand;
+    });
+
     if (loading) return <div className="text-center py-10">Cargando productos...</div>;
 
     return (
@@ -111,6 +142,15 @@ export default function ProductList() {
                     <Plus className="w-4 h-4" /> Nuevo Celular
                 </Button>
             </div>
+
+            <ProductFilter
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedBrand={selectedBrand}
+                onBrandChange={setSelectedBrand}
+                brands={brands}
+                variant="admin"
+            />
 
             {isFormOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -146,7 +186,7 @@ export default function ProductList() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {products.map((product) => (
+                        {filteredProducts.map((product) => (
                             <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4">
                                     <img
@@ -187,10 +227,10 @@ export default function ProductList() {
                                 </td>
                             </tr>
                         ))}
-                        {products.length === 0 && (
+                        {filteredProducts.length === 0 && (
                             <tr>
                                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                                    No hay celulares registrados.
+                                    {products.length === 0 ? 'No hay celulares registrados.' : 'No se encontraron celulares con los filtros aplicados.'}
                                 </td>
                             </tr>
                         )}

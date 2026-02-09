@@ -6,6 +6,7 @@ import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import { Search } from 'lucide-react';
+import ProductFilter from '@/components/ProductFilter';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,6 +15,7 @@ export default function Home() {
 
   // Filters
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Modal
   const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
@@ -30,8 +32,8 @@ export default function Home() {
         const productsData = await productsRes.json();
         const brandsData = await brandsRes.json();
 
-        setProducts(productsData);
-        setBrands(brandsData);
+        setProducts(Array.isArray(productsData) ? productsData : []);
+        setBrands(Array.isArray(brandsData) ? brandsData : []);
       } catch (error) {
         console.error("Failed to fetch catalog data", error);
       } finally {
@@ -42,14 +44,19 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const filteredProducts = selectedBrand === 'all'
-    ? products
-    : products.filter(p => {
-      const brandId = typeof p.brand === 'object' && p.brand !== null
-        ? (p.brand as any)._id || (p.brand as Brand).id
-        : p.brand;
-      return brandId === selectedBrand;
-    });
+  const filteredProducts = products.filter(p => {
+    // Brand Filter
+    const brandId = typeof p.brand === 'object' && p.brand !== null
+      ? (p.brand as any)._id || (p.brand as Brand).id
+      : p.brand;
+    const matchesBrand = selectedBrand === 'all' || brandId === selectedBrand;
+
+    // Search Filter
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesBrand && matchesSearch;
+  });
 
   const handleView = (product: Product) => {
     setViewingProduct(product);
@@ -79,36 +86,15 @@ export default function Home() {
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filters */}
-        <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Search className="w-5 h-5 text-gray-500" />
-              Filtrar por Marca
-            </h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => setSelectedBrand('all')}
-                className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${selectedBrand === 'all'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-              >
-                Todas las marcas
-              </button>
-              {brands.map(brand => (
-                <button
-                  key={brand.id}
-                  onClick={() => setSelectedBrand(brand.id!)}
-                  className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${selectedBrand === brand.id
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                >
-                  {brand.name}
-                </button>
-              ))}
-            </div>
-          </div>
+        <aside className="w-full lg:w-64 flex-shrink-0">
+          <ProductFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedBrand={selectedBrand}
+            onBrandChange={setSelectedBrand}
+            brands={brands}
+            variant="catalog"
+          />
         </aside>
 
         {/* Product Grid */}
