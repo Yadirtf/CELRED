@@ -1,7 +1,7 @@
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
-import { X } from 'lucide-react';
+import { X, MessageCircle } from 'lucide-react';
 
 interface ProductDetailsModalProps {
     isOpen: boolean;
@@ -15,6 +15,13 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
     const brandName = typeof product.brand === 'object' && product.brand !== null
         ? (product.brand as Brand).name
         : 'Unknown Brand';
+
+    const handleWhatsAppClick = () => {
+        const number = '573181615265'; // Default business number
+        const message = `Hola, estoy interesado en el producto: ${product.name}. Me gustaría recibir más información.`;
+        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
@@ -51,8 +58,8 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                                 {brandName}
                             </span>
                             <h2 className="text-3xl font-bold text-gray-900 leading-tight">{product.name}</h2>
-                            <p className="text-2xl font-bold text-blue-600 mt-2">
-                                ${product.price.toLocaleString()}
+                            <p className="text-lg font-semibold text-orange-600 mt-2">
+                                Financiación Disponible - Consulte con un asesor
                             </p>
                         </div>
 
@@ -75,8 +82,15 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                             </div>
                         )}
 
-                        <div className="pt-6 mt-auto">
-                            <Button className="w-full py-6 text-lg" onClick={onClose}>
+                        <div className="pt-6 mt-auto space-y-3">
+                            <Button
+                                className="w-full py-6 text-lg bg-green-600 hover:bg-green-700 gap-2"
+                                onClick={handleWhatsAppClick}
+                            >
+                                <MessageCircle className="w-6 h-6" />
+                                Consultar por WhatsApp
+                            </Button>
+                            <Button variant="ghost" className="w-full py-4" onClick={onClose}>
                                 Cerrar
                             </Button>
                         </div>

@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/Button';
 import { Edit, Trash2, Plus, ShoppingBag } from 'lucide-react';
 import ProductForm from '@/components/admin/ProductForm';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
-import { Eye } from 'lucide-react';
+import { Eye, Share2 } from 'lucide-react';
 import ProductFilter from '@/components/ProductFilter';
+import ShareProductModal from '@/components/admin/ShareProductModal';
 import { Brand } from '@/core/entities/Brand';
 
 export default function ProductList() {
@@ -15,6 +16,10 @@ export default function ProductList() {
     const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
     const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
     const [isViewOpen, setIsViewOpen] = useState(false);
+
+    // Sharing modal
+    const [sharingProduct, setSharingProduct] = useState<Product | undefined>(undefined);
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     // Filter states
     const [searchTerm, setSearchTerm] = useState('');
@@ -72,6 +77,11 @@ export default function ProductList() {
     const handleView = (product: Product) => {
         setViewingProduct(product);
         setIsViewOpen(true);
+    };
+
+    const handleShare = (product: Product) => {
+        setSharingProduct(product);
+        setIsShareOpen(true);
     };
 
     const handleSell = async (product: Product) => {
@@ -174,6 +184,12 @@ export default function ProductList() {
                 product={viewingProduct}
             />
 
+            <ShareProductModal
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
+                product={sharingProduct}
+            />
+
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
@@ -214,6 +230,9 @@ export default function ProductList() {
                                         disabled={product.stock <= 0}
                                     >
                                         <ShoppingBag className="w-4 h-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleShare(product)} title="Compartir">
+                                        <Share2 className="w-4 h-4 text-green-500" />
                                     </Button>
                                     <Button variant="ghost" size="sm" onClick={() => handleView(product)} title="Ver detalles">
                                         <Eye className="w-4 h-4 text-gray-500" />

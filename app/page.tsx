@@ -5,7 +5,7 @@ import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
-import { Search } from 'lucide-react';
+import { Search, MessageCircle } from 'lucide-react';
 import ProductFilter from '@/components/ProductFilter';
 
 export default function Home() {
@@ -61,6 +61,13 @@ export default function Home() {
   const handleView = (product: Product) => {
     setViewingProduct(product);
     setIsViewOpen(true);
+  };
+
+  const handleWhatsAppClick = (product: Product) => {
+    const number = '573000000000'; // Default business number for general catalog
+    const message = `Hola, quiero información sobre el celular: ${product.name}.`;
+    const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   };
 
   if (loading) return (
@@ -130,17 +137,30 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
-                    <span className="text-2xl font-bold text-blue-600">
-                      ${product.price ? product.price.toLocaleString() : '0'}
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => handleView(product)}
-                      className="rounded-full px-6"
-                    >
-                      Ver Detalles
-                    </Button>
+                  <div className="mt-auto pt-4 flex flex-col gap-3 border-t border-gray-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-orange-600">
+                        Financiación Disponible
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleWhatsAppClick(product)}
+                        className="flex-1 rounded-full bg-green-50 text-green-600 hover:bg-green-100 border-green-100"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        WhatsApp
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleView(product)}
+                        className="flex-1 rounded-full text-xs"
+                      >
+                        Ver Detalles
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
