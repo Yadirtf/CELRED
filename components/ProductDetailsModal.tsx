@@ -1,6 +1,7 @@
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
+import { useAdvisor } from '@/hooks/useAdvisor';
 import { X, MessageCircle } from 'lucide-react';
 
 interface ProductDetailsModalProps {
@@ -10,6 +11,7 @@ interface ProductDetailsModalProps {
 }
 
 export default function ProductDetailsModal({ isOpen, onClose, product }: ProductDetailsModalProps) {
+    const { assignedWhatsApp } = useAdvisor();
     if (!isOpen || !product) return null;
 
     const brandName = typeof product.brand === 'object' && product.brand !== null
@@ -17,7 +19,7 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
         : 'Unknown Brand';
 
     const handleWhatsAppClick = () => {
-        const number = '573181615265'; // Default business number
+        const number = assignedWhatsApp || '573166541275';
         const message = `Hola, estoy interesado en el producto: ${product.name}. Me gustaría recibir más información.`;
         const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');

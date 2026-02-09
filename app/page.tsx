@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/Button';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import { Search, MessageCircle } from 'lucide-react';
 import ProductFilter from '@/components/ProductFilter';
+import { useAdvisor } from '@/hooks/useAdvisor';
 
 export default function Home() {
+  const { assignedWhatsApp } = useAdvisor();
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function Home() {
   };
 
   const handleWhatsAppClick = (product: Product) => {
-    const number = '573000000000'; // Default business number for general catalog
+    const number = assignedWhatsApp || '573166541275'; // Fallback to sticky or default
     const message = `Hola, quiero información sobre el celular: ${product.name}.`;
     const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');

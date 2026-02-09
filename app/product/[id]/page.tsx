@@ -5,35 +5,49 @@ import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
 import { useSearchParams } from 'next/navigation';
+import { useAdvisor } from '@/hooks/useAdvisor';
 import { MessageCircle, ArrowLeft, ShieldCheck, Truck, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SingleProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const searchParams = useSearchParams();
+    const { assignedWhatsApp } = useAdvisor();
 
     const [product, setProduct] = useState<Product | undefined>(undefined);
+    const [advisorPhoto, setAdvisorPhoto] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Share parameters
-    const whatsapp = searchParams.get('wa') || '573166541275';
+    const whatsapp = assignedWhatsApp || searchParams.get('wa') || '573166541275';
     const advisor = searchParams.get('adv') || '';
     const showPrice = searchParams.get('sp') === '1';
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
+                // Fetch product
                 const res = await fetch(`/api/products/${id}`);
                 const data = await res.json();
                 setProduct(data);
+
+                // Fetch advisor photo if whatsapp is set
+                if (whatsapp) {
+                    const settingsRes = await fetch('/api/settings');
+                    const settings = await settingsRes.json();
+                    const currentAdvisor = settings.advisors?.find((a: any) => a.number === whatsapp);
+                    if (currentAdvisor?.imageUrl) {
+                        setAdvisorPhoto(currentAdvisor.imageUrl);
+                    }
+                }
             } catch (error) {
-                console.error("Error fetching product", error);
+                console.error("Error fetching data", error);
             } finally {
                 setLoading(false);
             }
         };
         fetchProduct();
-    }, [id]);
+    }, [id, whatsapp]);
 
     const handleContact = () => {
         const message = `Hola${advisor ? ' ' + advisor : ''}, vi este celular en el catálogo y me interesa: ${product?.name}.`;
@@ -136,13 +150,26 @@ export default function SingleProductPage({ params }: { params: Promise<{ id: st
                         </div>
 
                         <div className="mt-12">
-                            <Button
-                                className="w-full py-8 text-xl font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 gap-3 group transition-all"
-                                onClick={handleContact}
-                            >
-                                <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
-                                Hablar con {advisor || 'un asesor'}
-                            </Button>
+                            <div className="flex flex-col items-center gap-4">
+                                {advisorPhoto && (
+                                    <div className="flex items-center gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md">
+                                            <img src={advisorPhoto} alt="Asesor" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">Tu asesor asignado</p>
+                                            <p className="text-xs font-bold text-gray-700">{advisor || 'Hablemos ahora'}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <Button
+                                    className="w-full py-8 text-xl font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 gap-3 group transition-all"
+                                    onClick={handleContact}
+                                >
+                                    <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
+                                    Hablar con {advisor || 'un asesor'}
+                                </Button>
+                            </div>
                             <p className="text-center text-xs text-gray-400 mt-4 leading-tight">
                                 Al hacer clic serás redirigido a WhatsApp para concretar tu compra con {advisor || 'nuestro equipo'}.
                             </p>

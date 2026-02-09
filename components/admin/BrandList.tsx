@@ -21,15 +21,31 @@ export default function BrandList() {
 
     const handleCreateWrapper = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newBrandName.trim()) return;
+        const name = newBrandName.trim();
+        if (!name) return;
 
-        await fetch('/api/brands', {
-            method: 'POST',
-            body: JSON.stringify({ name: newBrandName }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        setNewBrandName('');
-        fetchBrands();
+        try {
+            console.log('CREATING BRAND:', name);
+            const res = await fetch('/api/brands', {
+                method: 'POST',
+                body: JSON.stringify({ name }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error('FAILED TO CREATE BRAND:', errorData);
+                alert('Error al crear la marca');
+                return;
+            }
+
+            console.log('BRAND CREATED SUCCESSFULLY');
+            setNewBrandName('');
+            fetchBrands();
+        } catch (error) {
+            console.error('NETWORK ERROR CREATING BRAND:', error);
+            alert('Error de red al crear la marca');
+        }
     };
 
     return (

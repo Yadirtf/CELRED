@@ -1,13 +1,16 @@
 'use client';
 
-import ProductList from "@/components/admin/ProductList";
-import BrandList from "@/components/admin/BrandList";
+import { useState } from 'react';
+import ProductList from '@/components/admin/ProductList';
+import BrandList from '@/components/admin/BrandList';
+import SettingsForm from '@/components/admin/SettingsForm';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { LogOut } from 'lucide-react';
 
 export default function AdminPage() {
     const router = useRouter();
+    const [activeTab, setActiveTab] = useState('products');
 
     const handleLogout = async () => {
         try {
@@ -32,14 +35,40 @@ export default function AdminPage() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-1">
-                    <BrandList />
-                </div>
-                <div className="lg:col-span-3">
-                    <ProductList />
-                </div>
+            {/* Tab Navigation */}
+            <div className="flex border-b border-gray-200">
+                <button
+                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'products' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('products')}
+                >
+                    Productos
+                </button>
+                <button
+                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'brands' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('brands')}
+                >
+                    Marcas
+                </button>
+                <button
+                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'advisors' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('advisors')}
+                >
+                    Asesores (WhatsApp)
+                </button>
             </div>
+
+            {/* Tab Content */}
+            <main className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                {activeTab === 'products' && (
+                    <div className="space-y-4">
+                        <ProductList />
+                    </div>
+                )}
+
+                {activeTab === 'brands' && <BrandList />}
+
+                {activeTab === 'advisors' && <SettingsForm />}
+            </main>
         </div>
     );
 }
