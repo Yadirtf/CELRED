@@ -23,7 +23,7 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
             alert("No hay asesores disponibles en este momento.");
             return;
         }
-        const message = `Hola, quiero consultar por este equipo: ${product.name}.`;
+        const message = `Hola, quiero consultar por el ${brandName} ${product.name}.`;
         window.open(`https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
     };
 

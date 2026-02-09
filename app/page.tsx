@@ -68,7 +68,8 @@ function CatalogContent() {
       return;
     }
 
-    const message = `Hola, quiero información sobre el celular: ${product.name}.`;
+    const brandName = typeof product.brand === 'object' ? (product.brand as any).name : 'Celular';
+    const message = `Hola, quiero información sobre el ${brandName} ${product.name}.`;
     const url = `https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };

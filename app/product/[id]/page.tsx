@@ -56,7 +56,7 @@ function ProductContent({ params }: { params: Promise<{ id: string }> }) {
             }
             return;
         }
-        const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este celular en el catálogo y me interesa: ${product?.name}.`;
+        const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este ${brandName} en el catálogo y me interesa: ${product?.name}.`;
         window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
