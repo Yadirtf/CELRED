@@ -37,7 +37,7 @@ export default function ShareProductModal({ isOpen, onClose, product }: SharePro
     const generateLink = () => {
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
         const params = new URLSearchParams();
-        params.set('wa', whatsappNumber.replace(/\D/g, '') || '573000000000');
+        params.set('wa', whatsappNumber.replace(/\D/g, '') || '573166541275');
         if (advisorName) params.set('adv', advisorName);
         if (showPrice) params.set('sp', '1');
 

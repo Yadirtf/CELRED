@@ -16,7 +16,7 @@ export default function SingleProductPage({ params }: { params: Promise<{ id: st
     const [loading, setLoading] = useState(true);
 
     // Share parameters
-    const whatsapp = searchParams.get('wa') || '573000000000';
+    const whatsapp = searchParams.get('wa') || '573166541275';
     const advisor = searchParams.get('adv') || '';
     const showPrice = searchParams.get('sp') === '1';
 
