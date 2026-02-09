@@ -59,13 +59,15 @@ export default function BrandList() {
                 />
                 <Button type="submit" size="sm">Agregar</Button>
             </form>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {brands.map(brand => (
-                    <span key={brand.id} className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
-                        {brand.name}
-                    </span>
+                    <div key={brand.id} className="px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-center shadow-sm hover:border-blue-200 hover:bg-white transition-all">
+                        <span className="text-sm font-bold text-gray-700">
+                            {brand.name}
+                        </span>
+                    </div>
                 ))}
-                {brands.length === 0 && <span className="text-sm text-gray-400">Sin marcas</span>}
+                {brands.length === 0 && <span className="text-sm text-gray-400 col-span-full text-center py-4">Sin marcas registradas</span>}
             </div>
         </div>
     );

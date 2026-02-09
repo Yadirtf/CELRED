@@ -95,22 +95,22 @@ export default function SettingsForm() {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
-            <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+            <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50/50 gap-4">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                         <MessageSquare className="w-5 h-5" />
                     </div>
                     <div>
                         <h2 className="text-lg font-bold text-gray-900">Configuración de WhatsApp</h2>
-                        <p className="text-xs text-gray-500">Administra los números de los asesores para el reparto de mensajes</p>
+                        <p className="text-xs text-gray-500">Administra los números de los asesores</p>
                     </div>
                 </div>
                 <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="gap-2 px-6"
+                    className="gap-2 px-6 w-full sm:w-auto"
                 >
-                    {saving ? 'Guardando...' : message.type === 'success' ? <><Check className="w-4 h-4" /> Guardado</> : <><Save className="w-4 h-4" /> Guardar Cambios</>}
+                    {saving ? 'Guardando...' : message.type === 'success' ? <><Check className="w-4 h-4" /> Guardado</> : <><Save className="w-4 h-4" /> Guardar</>}
                 </Button>
             </div>
 

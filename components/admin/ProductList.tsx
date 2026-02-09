@@ -191,70 +191,122 @@ export default function ProductList() {
             />
 
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
-                        <tr>
-                            <th className="px-6 py-4 font-medium">Foto</th>
-                            <th className="px-6 py-4 font-medium">Nombre</th>
-                            <th className="px-6 py-4 font-medium">Precio</th>
-                            <th className="px-6 py-4 font-medium">Stock</th>
-                            <th className="px-6 py-4 font-medium text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {filteredProducts.map((product) => (
-                            <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4">
-                                    <img
-                                        src={product.imageUrl || '/placeholder.png'}
-                                        alt={product.name}
-                                        className="w-12 h-12 object-cover rounded-md bg-gray-100"
-                                    />
-                                </td>
-                                <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
-                                <td className="px-6 py-4 text-blue-600 font-semibold">
-                                    ${product.price.toLocaleString()}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {product.stock} un.
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 flex gap-2 justify-end">
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        title="Registrar Venta"
-                                        onClick={() => handleSell(product)}
-                                        className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
-                                        disabled={product.stock <= 0}
-                                    >
-                                        <ShoppingBag className="w-4 h-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleShare(product)} title="Compartir">
-                                        <Share2 className="w-4 h-4 text-green-500" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleView(product)} title="Ver detalles">
-                                        <Eye className="w-4 h-4 text-gray-500" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleEdit(product)} title="Editar">
-                                        <Edit className="w-4 h-4 text-blue-500" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => product.id && handleDelete(product.id)} title="Eliminar">
-                                        <Trash2 className="w-4 h-4 text-red-500" />
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredProducts.length === 0 && (
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                                    {products.length === 0 ? 'No hay celulares registrados.' : 'No se encontraron celulares con los filtros aplicados.'}
-                                </td>
+                                <th className="px-6 py-4 font-medium">Foto</th>
+                                <th className="px-6 py-4 font-medium">Nombre</th>
+                                <th className="px-6 py-4 font-medium">Precio</th>
+                                <th className="px-6 py-4 font-medium">Stock</th>
+                                <th className="px-6 py-4 font-medium text-right">Acciones</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredProducts.map((product) => (
+                                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <img
+                                            src={product.imageUrl || '/placeholder.png'}
+                                            alt={product.name}
+                                            className="w-12 h-12 object-cover rounded-md bg-gray-100"
+                                        />
+                                    </td>
+                                    <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
+                                    <td className="px-6 py-4 text-blue-600 font-semibold">
+                                        ${product.price.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {product.stock} un.
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 flex gap-2 justify-end">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            title="Registrar Venta"
+                                            onClick={() => handleSell(product)}
+                                            className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
+                                            disabled={product.stock <= 0}
+                                        >
+                                            <ShoppingBag className="w-4 h-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => handleShare(product)} title="Compartir">
+                                            <Share2 className="w-4 h-4 text-green-500" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => handleView(product)} title="Ver detalles">
+                                            <Eye className="w-4 h-4 text-gray-500" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => handleEdit(product)} title="Editar">
+                                            <Edit className="w-4 h-4 text-blue-500" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => product.id && handleDelete(product.id)} title="Eliminar">
+                                            <Trash2 className="w-4 h-4 text-red-500" />
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-gray-100">
+                    {filteredProducts.map((product) => (
+                        <div key={product.id} className="p-4 space-y-4">
+                            <div className="flex gap-4">
+                                <img
+                                    src={product.imageUrl || '/placeholder.png'}
+                                    alt={product.name}
+                                    className="w-20 h-20 object-cover rounded-lg bg-gray-50"
+                                />
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-gray-900 truncate">{product.name}</h4>
+                                    <p className="text-blue-600 font-bold text-lg">
+                                        ${product.price.toLocaleString()}
+                                    </p>
+                                    <div className="mt-1">
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            Stock: {product.stock}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleSell(product)}
+                                    className="flex-1 bg-green-50 text-green-600 hover:bg-green-100 h-10"
+                                    disabled={product.stock <= 0}
+                                >
+                                    <ShoppingBag className="w-4 h-4 mr-2" /> Venta
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleShare(product)} className="h-10 px-3">
+                                    <Share2 className="w-4 h-4 text-green-500" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleView(product)} className="h-10 px-3 text-gray-500">
+                                    <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleEdit(product)} className="h-10 px-3 text-blue-500">
+                                    <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => product.id && handleDelete(product.id)} className="h-10 px-3 text-red-500">
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {filteredProducts.length === 0 && (
+                    <div className="px-6 py-12 text-center text-gray-500">
+                        {products.length === 0 ? 'No hay celulares registrados.' : 'No se encontraron celulares con los filtros aplicados.'}
+                    </div>
+                )}
             </div>
         </div>
     );
