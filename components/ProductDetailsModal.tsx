@@ -19,10 +19,12 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
         : 'Unknown Brand';
 
     const handleWhatsAppClick = () => {
-        const number = assignedWhatsApp || '573166541275';
-        const message = `Hola, estoy interesado en el producto: ${product.name}. Me gustaría recibir más información.`;
-        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+        if (!assignedWhatsApp) {
+            alert("No hay asesores disponibles en este momento.");
+            return;
+        }
+        const message = `Hola, quiero consultar por este equipo: ${product.name}.`;
+        window.open(`https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     return (

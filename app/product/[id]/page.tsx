@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, Suspense } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
@@ -9,18 +9,18 @@ import { useAdvisor } from '@/hooks/useAdvisor';
 import { MessageCircle, ArrowLeft, ShieldCheck, Truck, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
-export default function SingleProductPage({ params }: { params: Promise<{ id: string }> }) {
+function ProductContent({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const searchParams = useSearchParams();
-    const { assignedWhatsApp } = useAdvisor();
+    const { assignedWhatsApp, isLoadingAdvisor } = useAdvisor();
 
     const [product, setProduct] = useState<Product | undefined>(undefined);
     const [advisorPhoto, setAdvisorPhoto] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Share parameters
-    const whatsapp = assignedWhatsApp || searchParams.get('wa') || '573166541275';
-    const advisor = searchParams.get('adv') || '';
+    const whatsapp = assignedWhatsApp || searchParams.get('wa');
+    const advisorName = searchParams.get('adv') || '';
     const showPrice = searchParams.get('sp') === '1';
 
     useEffect(() => {
@@ -50,7 +50,13 @@ export default function SingleProductPage({ params }: { params: Promise<{ id: st
     }, [id, whatsapp]);
 
     const handleContact = () => {
-        const message = `Hola${advisor ? ' ' + advisor : ''}, vi este celular en el catálogo y me interesa: ${product?.name}.`;
+        if (!whatsapp) {
+            if (!isLoadingAdvisor) {
+                alert("No hay asesores disponibles en este momento. Por favor, intenta más tarde.");
+            }
+            return;
+        }
+        const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este celular en el catálogo y me interesa: ${product?.name}.`;
         window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
@@ -158,7 +164,7 @@ export default function SingleProductPage({ params }: { params: Promise<{ id: st
                                         </div>
                                         <div className="text-left">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">Tu asesor asignado</p>
-                                            <p className="text-xs font-bold text-gray-700">{advisor || 'Hablemos ahora'}</p>
+                                            <p className="text-xs font-bold text-gray-700">{advisorName || 'Hablemos ahora'}</p>
                                         </div>
                                     </div>
                                 )}
@@ -167,11 +173,11 @@ export default function SingleProductPage({ params }: { params: Promise<{ id: st
                                     onClick={handleContact}
                                 >
                                     <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
-                                    Hablar con {advisor || 'un asesor'}
+                                    Hablar con {advisorName || 'un asesor'}
                                 </Button>
                             </div>
                             <p className="text-center text-xs text-gray-400 mt-4 leading-tight">
-                                Al hacer clic serás redirigido a WhatsApp para concretar tu compra con {advisor || 'nuestro equipo'}.
+                                Al hacer clic serás redirigido a WhatsApp para concretar tu compra con {advisorName || 'nuestro equipo'}.
                             </p>
                         </div>
                     </div>
@@ -188,5 +194,17 @@ function SpecBox({ label, value }: { label: string, value?: string }) {
             <p className="text-[10px] font-bold text-gray-400 uppercase">{label}</p>
             <p className="font-bold text-gray-900 text-sm">{value}</p>
         </div>
+    );
+}
+
+export default function SingleProductPage(props: any) {
+    return (
+        <Suspense fallback={
+            <div className="flex justify-center items-center min-h-screen bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        }>
+            <ProductContent {...props} />
+        </Suspense>
     );
 }

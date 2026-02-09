@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 import { Button } from '@/components/ui/Button';
@@ -9,8 +9,8 @@ import { Search, MessageCircle } from 'lucide-react';
 import ProductFilter from '@/components/ProductFilter';
 import { useAdvisor } from '@/hooks/useAdvisor';
 
-export default function Home() {
-  const { assignedWhatsApp } = useAdvisor();
+function CatalogContent() {
+  const { assignedWhatsApp, isLoadingAdvisor } = useAdvisor();
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,16 +60,22 @@ export default function Home() {
     return matchesBrand && matchesSearch;
   });
 
+  const handleWhatsAppClick = (product: Product) => {
+    if (!assignedWhatsApp) {
+      if (!isLoadingAdvisor) {
+        alert("No hay asesores disponibles en este momento. Por favor, intenta más tarde.");
+      }
+      return;
+    }
+
+    const message = `Hola, quiero información sobre el celular: ${product.name}.`;
+    const url = `https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
   const handleView = (product: Product) => {
     setViewingProduct(product);
     setIsViewOpen(true);
-  };
-
-  const handleWhatsAppClick = (product: Product) => {
-    const number = assignedWhatsApp || '573166541275'; // Fallback to sticky or default
-    const message = `Hola, quiero información sobre el celular: ${product.name}.`;
-    const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
   };
 
   if (loading) return (
@@ -185,5 +191,17 @@ export default function Home() {
         product={viewingProduct}
       />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+      </div>
+    }>
+      <CatalogContent />
+    </Suspense>
   );
 }

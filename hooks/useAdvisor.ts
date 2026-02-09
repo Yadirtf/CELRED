@@ -7,25 +7,27 @@ const LOCAL_STORAGE_KEY = 'celred_sticky_wa';
 
 export function useAdvisor() {
     const [assignedWhatsApp, setAssignedWhatsApp] = useState<string | null>(null);
+    const [isLoadingAdvisor, setIsLoadingAdvisor] = useState(true);
     const searchParams = useSearchParams();
 
     const getStickyAdvisor = useCallback(async (forcedNumber?: string | null) => {
-        // 1. If forced via URL, update and save
-        if (forcedNumber) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, forcedNumber);
-            setAssignedWhatsApp(forcedNumber);
-            return forcedNumber;
-        }
-
-        // 2. Check localStorage
-        const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (cached) {
-            setAssignedWhatsApp(cached);
-            return cached;
-        }
-
-        // 3. Fallback: Fetch from API and pick random for load balancing
+        setIsLoadingAdvisor(true);
         try {
+            // 1. If forced via URL, update and save
+            if (forcedNumber) {
+                localStorage.setItem(LOCAL_STORAGE_KEY, forcedNumber);
+                setAssignedWhatsApp(forcedNumber);
+                return forcedNumber;
+            }
+
+            // 2. Check localStorage
+            const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (cached) {
+                setAssignedWhatsApp(cached);
+                return cached;
+            }
+
+            // 3. Fallback: Fetch from API and pick random for load balancing
             const res = await fetch('/api/settings');
             const settings = await res.json();
             const advisors = settings.advisors || [];
@@ -38,13 +40,16 @@ export function useAdvisor() {
                 setAssignedWhatsApp(chosen);
                 return chosen;
             }
+
+            // If No advisors in DB, don't set a hardcoded one here
+            // unless we absolutely have to. Let's return null to let components decide.
+            setAssignedWhatsApp(null);
         } catch (error) {
             console.error("Error fetching advisors for assignment", error);
+        } finally {
+            setIsLoadingAdvisor(false);
         }
-
-        const fallback = '573166541275'; // Global fallback
-        setAssignedWhatsApp(fallback);
-        return fallback;
+        return null;
     }, []);
 
     useEffect(() => {
@@ -52,5 +57,5 @@ export function useAdvisor() {
         getStickyAdvisor(waParam);
     }, [searchParams, getStickyAdvisor]);
 
-    return { assignedWhatsApp, getStickyAdvisor };
+    return { assignedWhatsApp, isLoadingAdvisor, getStickyAdvisor };
 }
