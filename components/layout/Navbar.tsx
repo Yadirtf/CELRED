@@ -8,7 +8,7 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900 hover:opacity-80 transition">
                     <Smartphone className="w-6 h-6 text-red-600" />
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-orange-500">
-                        CelRed
+                        CELRED
                     </span>
                 </Link>
 
