@@ -58,9 +58,16 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
 
                     <div className="space-y-6">
                         <div>
-                            <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-wide uppercase mb-3">
-                                {brandName}
-                            </span>
+                            <div className="flex items-center gap-3 mb-3">
+                                <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-wide uppercase">
+                                    {brandName}
+                                </span>
+                                {product.stock === 0 && (
+                                    <span className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold tracking-wide uppercase">
+                                        Agotado
+                                    </span>
+                                )}
+                            </div>
                             <h2 className="text-3xl font-bold text-gray-900 leading-tight">{product.name}</h2>
                             <p className="text-lg font-semibold text-orange-600 mt-2">
                                 Financiación Disponible - Consulte con un asesor
@@ -88,11 +95,12 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
 
                         <div className="pt-6 mt-auto space-y-3">
                             <Button
-                                className="w-full py-6 text-lg bg-green-600 hover:bg-green-700 gap-2"
+                                className={`w-full py-6 text-lg gap-2 ${product.stock === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200' : 'bg-green-600 hover:bg-green-700'}`}
                                 onClick={handleWhatsAppClick}
+                                disabled={product.stock === 0}
                             >
                                 <MessageCircle className="w-6 h-6" />
-                                Consultar por WhatsApp
+                                {product.stock === 0 ? 'Producto Agotado' : 'Consultar por WhatsApp'}
                             </Button>
                             <Button variant="ghost" className="w-full py-4" onClick={onClose}>
                                 Cerrar

@@ -129,11 +129,18 @@ function CatalogContent() {
                   <img
                     src={product.imageUrl || '/placeholder.png'}
                     alt={product.name}
-                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm"
+                    className={`w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm ${product.stock === 0 ? 'opacity-40 grayscale-[0.5]' : ''}`}
                   />
                   <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-700 shadow-sm border border-gray-100 uppercase tracking-wider">
                     {typeof product.brand === 'object' ? (product.brand as any).name : 'Celular'}
                   </div>
+                  {product.stock === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest shadow-lg transform -rotate-12">
+                        Agotado
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-5 space-y-3 flex-1 flex flex-col">
@@ -157,10 +164,11 @@ function CatalogContent() {
                         variant="secondary"
                         size="sm"
                         onClick={() => handleWhatsAppClick(product)}
-                        className="flex-1 rounded-full bg-green-50 text-green-600 hover:bg-green-100 border-green-100"
+                        disabled={product.stock === 0}
+                        className={`flex-1 rounded-full ${product.stock === 0 ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-green-50 text-green-600 hover:bg-green-100 border-green-100'}`}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
-                        WhatsApp
+                        {product.stock === 0 ? 'Sin Stock' : 'WhatsApp'}
                       </Button>
                       <Button
                         size="sm"
