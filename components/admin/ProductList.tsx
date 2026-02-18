@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Button } from '@/components/ui/Button';
-import { Edit, Trash2, Plus, ShoppingBag } from 'lucide-react';
+import { Edit, Trash2, Plus, ShoppingBag, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import ProductForm from '@/components/admin/ProductForm';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import { Eye, Share2 } from 'lucide-react';
@@ -142,15 +143,51 @@ export default function ProductList() {
         return matchesSearch && matchesBrand;
     });
 
+    const handleExportExcel = () => {
+        const dataToExport = filteredProducts.map(product => {
+            let brandName = 'Sin Marca';
+
+            if (typeof product.brand === 'object' && product.brand !== null) {
+                brandName = (product.brand as Brand).name || 'Sin Marca';
+            } else if (typeof product.brand === 'string') {
+                const foundBrand = brands.find(b => b.id === product.brand);
+                if (foundBrand) brandName = foundBrand.name;
+            } else if (product.brand) {
+                // Fallback for any weird state
+                brandName = String(product.brand);
+            }
+
+            return {
+                Marca: brandName,
+                Nombre: product.name,
+                Stock: product.stock
+            };
+        });
+
+        // 1. Sort by Brand
+        dataToExport.sort((a, b) => a.Marca.localeCompare(b.Marca));
+
+        // 2. Create Sheet
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
+        XLSX.writeFile(workbook, "Inventario_Celulares.xlsx");
+    };
+
     if (loading) return <div className="text-center py-10">Cargando productos...</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">Inventario de Celulares</h2>
-                <Button onClick={handleCreate} className="gap-2">
-                    <Plus className="w-4 h-4" /> Nuevo Celular
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={handleExportExcel} variant="secondary" className="gap-2">
+                        <Download className="w-4 h-4" /> Exportar Excel
+                    </Button>
+                    <Button onClick={handleCreate} className="gap-2">
+                        <Plus className="w-4 h-4" /> Nuevo Celular
+                    </Button>
+                </div>
             </div>
 
             <ProductFilter
