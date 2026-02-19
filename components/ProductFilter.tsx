@@ -12,6 +12,8 @@ interface ProductFilterProps {
     brands: Brand[];
     placeholder?: string;
     variant?: 'admin' | 'catalog';
+    selectedStock?: string;
+    onStockChange?: (value: string) => void;
 }
 
 export default function ProductFilter({
@@ -21,7 +23,9 @@ export default function ProductFilter({
     onBrandChange,
     brands,
     placeholder = "Buscar celular...",
-    variant = 'admin'
+    variant = 'admin',
+    selectedStock = 'all',
+    onStockChange
 }: ProductFilterProps) {
     if (variant === 'catalog') {
         return (
@@ -81,6 +85,22 @@ export default function ProductFilter({
                     className="w-full"
                 />
             </div>
+
+            {onStockChange && (
+                <div className="w-full md:w-48">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Stock</label>
+                    <select
+                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={selectedStock}
+                        onChange={(e) => onStockChange(e.target.value)}
+                    >
+                        <option value="all">Todos</option>
+                        <option value="gt1">Mayor a 1 (Stock)</option>
+                        <option value="zero">Igual a 0 (Sin Stock)</option>
+                    </select>
+                </div>
+            )}
+
             <div className="w-full md:w-64">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Marca</label>
                 <select

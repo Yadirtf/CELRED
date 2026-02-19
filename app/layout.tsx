@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={`${inter.className} min-h-screen bg-gray-50 text-gray-900 antialiased`}>
+    <html lang="es" className="h-full">
+      <body className={`${inter.className} min-h-full bg-gradient-to-br from-red-100 via-red-50 to-orange-100 text-gray-900 antialiased`}>
         <Navbar />
         <main className="container mx-auto px-4 py-8">
           {children}

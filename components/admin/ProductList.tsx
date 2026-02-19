@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Button } from '@/components/ui/Button';
 import { Edit, Trash2, Plus, ShoppingBag, Download } from 'lucide-react';
-import * as XLSX from 'xlsx';
+
 import ProductForm from '@/components/admin/ProductForm';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import { Eye, Share2 } from 'lucide-react';
@@ -25,6 +25,7 @@ export default function ProductList() {
     // Filter states
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBrand, setSelectedBrand] = useState('all');
+    const [selectedStock, setSelectedStock] = useState('all');
     const [brands, setBrands] = useState<Brand[]>([]);
 
     const fetchProducts = async () => {
@@ -140,38 +141,108 @@ export default function ProductList() {
 
         const matchesBrand = selectedBrand === 'all' || brandId === selectedBrand;
 
-        return matchesSearch && matchesBrand;
+        const matchesStock =
+            selectedStock === 'all' ||
+            (selectedStock === 'gt1' && product.stock > 1) ||
+            (selectedStock === 'zero' && product.stock === 0);
+
+        return matchesSearch && matchesBrand && matchesStock;
     });
 
-    const handleExportExcel = () => {
-        const dataToExport = filteredProducts.map(product => {
-            let brandName = 'Sin Marca';
+    const handleExportExcel = async () => {
+        try {
+            // Dynamically import libraries
+            const ExcelJS = (await import('exceljs')).default;
+            const { saveAs } = (await import('file-saver'));
 
-            if (typeof product.brand === 'object' && product.brand !== null) {
-                brandName = (product.brand as Brand).name || 'Sin Marca';
-            } else if (typeof product.brand === 'string') {
-                const foundBrand = brands.find(b => b.id === product.brand);
-                if (foundBrand) brandName = foundBrand.name;
-            } else if (product.brand) {
-                // Fallback for any weird state
-                brandName = String(product.brand);
-            }
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Inventario');
 
-            return {
-                Marca: brandName,
-                Nombre: product.name,
-                Stock: product.stock
+            // Define Columns with formatting
+            worksheet.columns = [
+                { header: 'Marca', key: 'marca', width: 20 },
+                { header: 'Nombre', key: 'nombre', width: 35 },
+                { header: 'Precio', key: 'precio', width: 15 },
+                { header: 'Stock', key: 'stock', width: 10 },
+            ];
+
+            // Style Header Row
+            const headerRow = worksheet.getRow(1);
+            headerRow.height = 25;
+            headerRow.font = {
+                name: 'Arial',
+                size: 11,
+                bold: true,
+                color: { argb: 'FFFFFFFF' }
             };
-        });
+            headerRow.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF1F2937' } // Dark gray header
+            };
+            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        // 1. Sort by Brand
-        dataToExport.sort((a, b) => a.Marca.localeCompare(b.Marca));
+            // Prepare Data
+            const dataToExport = filteredProducts.map(product => {
+                let brandName = 'Sin Marca';
 
-        // 2. Create Sheet
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
-        XLSX.writeFile(workbook, "Inventario_Celulares.xlsx");
+                if (typeof product.brand === 'object' && product.brand !== null) {
+                    brandName = (product.brand as Brand).name || 'Sin Marca';
+                } else if (typeof product.brand === 'string') {
+                    const foundBrand = brands.find(b => b.id === product.brand);
+                    if (foundBrand) brandName = foundBrand.name;
+                } else if (product.brand) {
+                    brandName = String(product.brand);
+                }
+
+                return {
+                    marca: brandName,
+                    nombre: product.name,
+                    precio: product.price,
+                    stock: product.stock
+                };
+            });
+
+            // Sort by data
+            dataToExport.sort((a, b) => a.marca.localeCompare(b.marca));
+
+            // Add Data Rows
+            dataToExport.forEach(item => {
+                const row = worksheet.addRow(item);
+
+                // Specific cell alignment
+                row.getCell('precio').alignment = { vertical: 'middle', horizontal: 'right' };
+                row.getCell('stock').alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Currency format
+                row.getCell('precio').numFmt = '"$"#,##0.00';
+            });
+
+            // Apply borders to all used cells
+            worksheet.eachRow((row, rowNumber) => {
+                row.eachCell((cell) => {
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' }
+                    };
+                    // Default alignment if not set
+                    if (!cell.alignment) {
+                        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                    }
+                });
+            });
+
+            // Write File
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            saveAs(blob, "Inventario_Celulares_Detallado.xlsx");
+
+        } catch (error) {
+            console.error("Error generating Excel:", error);
+            alert("No se pudo generar el Excel. Intente nuevamente.");
+        }
     };
 
     if (loading) return <div className="text-center py-10">Cargando productos...</div>;
@@ -195,6 +266,8 @@ export default function ProductList() {
                 onSearchChange={setSearchTerm}
                 selectedBrand={selectedBrand}
                 onBrandChange={setSelectedBrand}
+                selectedStock={selectedStock}
+                onStockChange={setSelectedStock}
                 brands={brands}
                 variant="admin"
             />
