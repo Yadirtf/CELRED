@@ -1,21 +1,20 @@
 'use client';
 
-import { Suspense } from 'react';
-import { Brand } from '@/core/entities/Brand';
+import { Suspense, useState } from 'react';
+import { Product } from '@/core/entities/Product';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
-import ProductFilter from '@/components/ProductFilter';
 import ProductCard from '@/components/catalog/ProductCard';
 import HeroSection from '@/components/catalog/HeroSection';
 import EmptyState from '@/components/ui/EmptyState';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import CatalogFilter from '@/components/catalog/CatalogFilter';
+import CatalogSkeleton from '@/components/catalog/CatalogSkeleton';
 import { useAdvisor } from '@/hooks/useAdvisor';
 import { useProductCatalog } from '@/hooks/useProductCatalog';
-import { useState } from 'react';
-import { Product } from '@/core/entities/Product';
 
 function CatalogContent() {
   const { assignedWhatsApp, isLoadingAdvisor } = useAdvisor();
   const {
+    products,
     brands,
     loading,
     filteredProducts,
@@ -46,34 +45,35 @@ function CatalogContent() {
     setIsViewOpen(true);
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CatalogSkeleton />;
+
+  const filterProps = {
+    searchTerm,
+    onSearchChange: setSearchTerm,
+    selectedBrand,
+    onBrandChange: setSelectedBrand,
+    brands,
+    products,
+    totalFiltered: filteredProducts.length,
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <HeroSection />
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar Filters */}
-        <aside className="w-full lg:w-64 flex-shrink-0">
-          <ProductFilter
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedBrand={selectedBrand}
-            onBrandChange={setSelectedBrand}
-            brands={brands}
-            variant="catalog"
-          />
-        </aside>
+        <CatalogFilter {...filterProps} />
 
         {/* Product Grid */}
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-6">
+        <div className="flex-1 min-w-0 space-y-6">
+          {/* Desktop header */}
+          <div className="hidden lg:flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-800">
               {selectedBrand === 'all'
                 ? 'Todos los productos'
-                : `Productos ${brands.find((b) => b.id === selectedBrand)?.name}`}
+                : `Productos ${brands.find((b) => b.id === selectedBrand)?.name ?? ''}`}
             </h2>
-            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-bold">
               {filteredProducts.length} encontrados
             </span>
           </div>
@@ -89,7 +89,12 @@ function CatalogContent() {
             ))}
           </div>
 
-          {filteredProducts.length === 0 && <EmptyState />}
+          {filteredProducts.length === 0 && (
+            <EmptyState
+              message="No se encontraron productos."
+              hint="Intenta con otra marca o limpia los filtros."
+            />
+          )}
         </div>
       </div>
 
@@ -104,7 +109,7 @@ function CatalogContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<CatalogSkeleton />}>
       <CatalogContent />
     </Suspense>
   );
