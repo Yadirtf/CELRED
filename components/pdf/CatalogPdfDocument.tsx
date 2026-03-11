@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    height: '44%', // Reduced from 46% to 44% to leave plenty of breathing room at bottom
-    marginBottom: '2%', // Reduced from 3%
-    padding: 10, // Reduced from 12 to 10
+    height: '38%', // Significantly reduced to ~11cm to ensure 4 cards neatly fit
+    marginBottom: '2%',
+    padding: 10,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 8,
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
   },
   imageContainer: {
-    height: '40%', // Take up slightly less space for image, gives space to bottom
-    marginBottom: 6, // Reduced from 8
+    height: '35%', // Reduced image space to preserve room for text characteristics
+    marginBottom: 6,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
