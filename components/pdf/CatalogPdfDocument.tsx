@@ -17,10 +17,11 @@ const styles = StyleSheet.create({
     padding: 30, // 30pt padding all around
   },
   header: {
-    height: 40,
+    height: 50, // Increased from 40 to accommodate font sizes and line heights
     marginBottom: 20,
     borderBottomWidth: 2,
     borderBottomColor: '#2563eb',
+    paddingBottom: 8, // Added padding to push the line further down
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: 'bold',
     color: '#475569',
-    width: 65, // Fixed width
+    width: 80, // Increased width to ensure "Almacenamiento:" fits without hyphenation/wrapping
   },
   specValue: {
     fontSize: 9,
