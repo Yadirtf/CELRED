@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    height: '47%', // roughly half the page height minus spacing
-    marginBottom: '4%', // spacing between rows
-    padding: 15,
+    height: '46%', // reduced from 47% to 46% to prevent overflow
+    marginBottom: '3%', // slightly reduced margin
+    padding: 12, // reduced from 15 to give more inner space
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 8,
@@ -73,22 +73,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 13, // slightly smaller text
     fontWeight: 'bold',
     color: '#0f172a',
-    marginBottom: 6,
-    height: 34, // Fixed height for 2 lines of text max to keep layout stable
+    marginBottom: 4, // reduced margin
+    height: 30, // Fixed height for 2 lines of text max to keep layout stable
   },
   specsBox: {
     flex: 1,
-    marginTop: 4,
-    paddingTop: 8,
+    marginTop: 2, // reduced margin
+    paddingTop: 6, // reduced padding
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
   specRow: {
     flexDirection: 'row',
-    marginBottom: 3,
+    marginBottom: 2, // reduced margin
   },
   specLabel: {
     fontSize: 9,
