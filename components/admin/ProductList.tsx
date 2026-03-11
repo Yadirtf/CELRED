@@ -11,6 +11,7 @@ import ProductTableRow from '@/components/admin/ProductTableRow';
 import ProductMobileCard from '@/components/admin/ProductMobileCard';
 import { useProductList } from '@/hooks/useProductList';
 import { exportProductsToExcel } from '@/lib/exportExcel';
+import DownloadCatalogButton from '@/components/pdf/DownloadCatalogButton';
 
 export default function ProductList() {
     const {
@@ -70,6 +71,7 @@ export default function ProductList() {
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">Inventario de Celulares</h2>
                 <div className="flex gap-2">
+                    <DownloadCatalogButton products={filteredProducts} brands={brands} />
                     <Button onClick={handleExportExcel} variant="secondary" className="gap-2">
                         <Download className="w-4 h-4" /> Exportar Excel
                     </Button>
