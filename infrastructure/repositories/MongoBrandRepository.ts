@@ -23,6 +23,19 @@ export class MongoBrandRepository implements IBrandRepository {
         return this.mapToEntity(brand);
     }
 
+    async update(id: string, brand: Partial<Brand>): Promise<Brand | null> {
+        await dbConnect();
+        const updatedBrand = await BrandModel.findByIdAndUpdate(id, brand, { new: true });
+        if (!updatedBrand) return null;
+        return this.mapToEntity(updatedBrand);
+    }
+
+    async delete(id: string): Promise<boolean> {
+        await dbConnect();
+        const result = await BrandModel.findByIdAndDelete(id);
+        return result !== null;
+    }
+
     private mapToEntity(doc: any): Brand {
         return {
             id: doc._id.toString(),

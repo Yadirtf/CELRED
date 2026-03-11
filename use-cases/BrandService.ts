@@ -16,4 +16,12 @@ export class BrandService {
     async getBrandById(id: string): Promise<Brand | null> {
         return this.brandRepository.findById(id);
     }
+
+    async updateBrand(id: string, brand: Partial<Brand>): Promise<Brand | null> {
+        return this.brandRepository.update(id, brand);
+    }
+
+    async deleteBrand(id: string): Promise<boolean> {
+        return this.brandRepository.delete(id);
+    }
 }
