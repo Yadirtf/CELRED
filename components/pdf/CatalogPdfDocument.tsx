@@ -94,12 +94,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: 'bold',
     color: '#475569',
-    width: '35%',
+    width: '45%', // Increased from 35% to give "Almacenamiento" more room
   },
   specValue: {
     fontSize: 9,
     color: '#334155',
-    width: '65%',
+    width: '55%', // Decreased from 65% to balance
   },
   footer: {
     position: 'absolute',
@@ -144,7 +144,7 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
   return (
     <Document>
       {productChunks.map((chunk, pageIndex) => (
-        <Page key={`page-${pageIndex}`} size="A4" style={styles.page}>
+        <Page key={`page-${pageIndex}`} size="A4" style={styles.page} wrap={false}>
           <View style={styles.header}>
             <View>
               <Text style={styles.title}>Catálogo de Celulares</Text>
@@ -196,7 +196,7 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
                         )}
                         {product.specs?.storage && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Almacena...</Text>
+                             <Text style={styles.specLabel}>Almacenamiento:</Text>
                              <Text style={styles.specValue}>{product.specs.storage}</Text>
                           </View>
                         )}
