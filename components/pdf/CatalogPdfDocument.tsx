@@ -3,22 +3,27 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
 
-// Create styles
+// A4 sheet is 595 x 842 points.
+// Padding: 30pt. Usable area: 535 x 782.
+// Header = 60pt. Footer = 30pt. 
+// Usable space for grid = 692pt.
+// 2 rows max: height of each card = 330pt. (330*2 = 660, leaving 32pt for vertical gap)
+// Width: 535pt. 2 columns: width of card = 255pt. (255*2 = 510, leaving 25pt for horizontal gap)
+
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 30, // standard A4 padding
+    padding: 30, // 30pt padding all around
   },
   header: {
+    height: 40,
     marginBottom: 20,
     borderBottomWidth: 2,
     borderBottomColor: '#2563eb',
-    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 40, // fixed height for header so content area is predictable
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 24,
@@ -28,31 +33,31 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 12,
     color: '#64748b',
+    marginTop: 4,
   },
   content: {
-    flex: 1, // take remaining space
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignContent: 'flex-start',
   },
   card: {
-    width: '48%',
-    height: '38%', // Significantly reduced to ~11cm to ensure 4 cards neatly fit
-    marginBottom: '2%',
-    padding: 10,
+    width: 255, // Fixed width in points
+    height: 330, // Fixed height in points
+    marginBottom: 20, // Fixed margin
+    padding: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 8,
-    flexDirection: 'column',
     backgroundColor: '#f8fafc',
+    overflow: 'hidden', // prevent any content from expanding the card
   },
   imageContainer: {
-    height: '35%', // Reduced image space to preserve room for text characteristics
-    marginBottom: 6,
+    height: 120, // Fixed image area height
+    width: '100%',
+    marginBottom: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: 6,
     padding: 4,
   },
@@ -63,43 +68,54 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
-    flexDirection: 'column',
   },
   brandText: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#3b82f6',
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   productName: {
-    fontSize: 12, // Even smaller text
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#0f172a',
-    marginBottom: 2, // reduced margin to 2
-    height: 28, // Tighter height for 2 lines
+    height: 28, // Max 2 lines using fixed height
+    marginBottom: 8,
   },
   specsBox: {
-    flex: 1,
-    marginTop: 2,
-    paddingTop: 4, // reduced padding from 6 to 4
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
+    paddingTop: 8,
   },
   specRow: {
     flexDirection: 'row',
-    marginBottom: 1, // reduced from 2 to 1 (tighter rows)
+    marginBottom: 4,
+    alignItems: 'flex-start',
   },
   specLabel: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#475569',
-    width: '45%', // Increased from 35% to give "Almacenamiento" more room
+    width: 65, // Fixed width
   },
   specValue: {
     fontSize: 9,
     color: '#334155',
-    width: '55%', // Decreased from 65% to balance
+    flex: 1,
+  },
+  noSpecsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    marginTop: 8,
+  },
+  noSpecsText: {
+    fontSize: 10,
+    color: '#94a3b8',
+    fontStyle: 'italic',
   },
   footer: {
     position: 'absolute',
@@ -138,14 +154,14 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
     return 'Desconocida';
   };
 
-  // We chunk the products so every page receives exactly a maximum of 4 products.
+  // Divide array into exact chunks of 4.
   const productChunks = chunkArray(products, 4);
 
   return (
     <Document>
       {productChunks.map((chunk, pageIndex) => (
         <Page key={`page-${pageIndex}`} size="A4" style={styles.page} wrap={false}>
-          <View style={styles.header}>
+          <View style={styles.header} wrap={false}>
             <View>
               <Text style={styles.title}>Catálogo de Celulares</Text>
               <Text style={styles.subtitle}>CelredSoft - Listado Oficial</Text>
@@ -153,7 +169,7 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
             <Text style={styles.subtitle}>{new Date().toLocaleDateString('es-CO')}</Text>
           </View>
 
-          <View style={styles.content}>
+          <View style={styles.content} wrap={false}>
             {chunk.map((product) => {
               const hasSpecs = product.specs && (
                 product.specs.processor ||
@@ -165,7 +181,7 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
               );
 
               return (
-                <View key={product.id || product.name} style={styles.card}>
+                <View key={product.id || product.name} style={styles.card} wrap={false}>
                   <View style={styles.imageContainer}>
                     {product.imageUrl ? (
                       <Image source={product.imageUrl} style={styles.image} />
@@ -177,51 +193,57 @@ export const CatalogPdfDocument: React.FC<CatalogPdfDocumentProps> = ({ products
                   <View style={styles.infoContainer}>
                     <Text style={styles.brandText}>{getBrandName(product.brand)}</Text>
                     <Text style={styles.productName}>
-                      {product.name.length > 45 ? product.name.substring(0, 42) + '...' : product.name}
+                      {product.name.length > 50 ? product.name.substring(0, 47) + '...' : product.name}
                     </Text>
 
                     {hasSpecs ? (
                       <View style={styles.specsBox}>
                         {product.specs?.processor && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Procesador:</Text>
-                             <Text style={styles.specValue}>{product.specs.processor}</Text>
+                            <Text style={styles.specLabel}>Procesador:</Text>
+                            <Text style={styles.specValue}>
+                                {product.specs.processor.length > 35 ? product.specs.processor.substring(0,32) + '...' : product.specs.processor}
+                            </Text>
                           </View>
                         )}
                         {product.specs?.ram && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>RAM:</Text>
-                             <Text style={styles.specValue}>{product.specs.ram}</Text>
+                            <Text style={styles.specLabel}>RAM:</Text>
+                            <Text style={styles.specValue}>{product.specs.ram}</Text>
                           </View>
                         )}
                         {product.specs?.storage && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Almacenamiento:</Text>
-                             <Text style={styles.specValue}>{product.specs.storage}</Text>
+                            <Text style={styles.specLabel}>Almacenamiento:</Text>
+                            <Text style={styles.specValue}>{product.specs.storage}</Text>
                           </View>
                         )}
                         {product.specs?.screen && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Pantalla:</Text>
-                             <Text style={styles.specValue}>{product.specs.screen}</Text>
+                            <Text style={styles.specLabel}>Pantalla:</Text>
+                            <Text style={styles.specValue}>
+                                {product.specs.screen.length > 35 ? product.specs.screen.substring(0,32) + '...' : product.specs.screen}
+                            </Text>
                           </View>
                         )}
                         {product.specs?.battery && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Batería:</Text>
-                             <Text style={styles.specValue}>{product.specs.battery}</Text>
+                            <Text style={styles.specLabel}>Batería:</Text>
+                            <Text style={styles.specValue}>{product.specs.battery}</Text>
                           </View>
                         )}
                         {product.specs?.camera && (
                           <View style={styles.specRow}>
-                             <Text style={styles.specLabel}>Cámara:</Text>
-                             <Text style={styles.specValue}>{product.specs.camera}</Text>
+                            <Text style={styles.specLabel}>Cámara:</Text>
+                            <Text style={styles.specValue}>
+                                {product.specs.camera.length > 35 ? product.specs.camera.substring(0,32) + '...' : product.specs.camera}
+                            </Text>
                           </View>
                         )}
                       </View>
                     ) : (
-                      <View style={[styles.specsBox, { justifyContent: 'center', alignItems: 'center' }]}>
-                         <Text style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic', marginTop: 10 }}>Sin características adicionales</Text>
+                      <View style={styles.noSpecsContainer}>
+                        <Text style={styles.noSpecsText}>Sin características adicionales</Text>
                       </View>
                     )}
                   </View>
