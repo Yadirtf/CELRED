@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    height: '46%', // reduced from 47% to 46% to prevent overflow
-    marginBottom: '3%', // slightly reduced margin
-    padding: 12, // reduced from 15 to give more inner space
+    height: '44%', // Reduced from 46% to 44% to leave plenty of breathing room at bottom
+    marginBottom: '2%', // Reduced from 3%
+    padding: 10, // Reduced from 12 to 10
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 8,
@@ -48,13 +48,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
   },
   imageContainer: {
-    height: '45%', // Take up top half of the card
-    marginBottom: 8,
+    height: '40%', // Take up slightly less space for image, gives space to bottom
+    marginBottom: 6, // Reduced from 8
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 6,
-    padding: 5,
+    padding: 4,
   },
   image: {
     objectFit: 'contain',
@@ -73,22 +73,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   productName: {
-    fontSize: 13, // slightly smaller text
+    fontSize: 12, // Even smaller text
     fontWeight: 'bold',
     color: '#0f172a',
-    marginBottom: 4, // reduced margin
-    height: 30, // Fixed height for 2 lines of text max to keep layout stable
+    marginBottom: 2, // reduced margin to 2
+    height: 28, // Tighter height for 2 lines
   },
   specsBox: {
     flex: 1,
-    marginTop: 2, // reduced margin
-    paddingTop: 6, // reduced padding
+    marginTop: 2,
+    paddingTop: 4, // reduced padding from 6 to 4
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
   specRow: {
     flexDirection: 'row',
-    marginBottom: 2, // reduced margin
+    marginBottom: 1, // reduced from 2 to 1 (tighter rows)
   },
   specLabel: {
     fontSize: 9,
