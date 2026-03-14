@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ProductList from '@/components/admin/ProductList';
 import BrandList from '@/components/admin/BrandList';
 import SettingsForm from '@/components/admin/SettingsForm';
+import ReferencesTab from '@/components/admin/ReferencesTab';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { LogOut } from 'lucide-react';
@@ -55,6 +56,12 @@ export default function AdminPage() {
                 >
                     Asesores (WhatsApp)
                 </button>
+                <button
+                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'references' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('references')}
+                >
+                    📋 Referencias
+                </button>
             </div>
 
             {/* Tab Content */}
@@ -68,6 +75,8 @@ export default function AdminPage() {
                 {activeTab === 'brands' && <BrandList />}
 
                 {activeTab === 'advisors' && <SettingsForm />}
+
+                {activeTab === 'references' && <ReferencesTab />}
             </main>
         </div>
     );

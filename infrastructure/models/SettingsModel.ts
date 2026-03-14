@@ -6,6 +6,7 @@ export interface ISettings extends Document {
         imageUrl?: string;
         name?: string;
     }[];
+    referralMessage: string;
     updatedAt: Date;
 }
 
@@ -15,6 +16,10 @@ const SettingsSchema: Schema = new Schema({
         imageUrl: { type: String },
         name: { type: String }
     }],
+    referralMessage: {
+        type: String,
+        default: '¡Hola {nombre_referido}! 👋 Tu amigo/a {nombre_comprador} nos pasó tu contacto porque sabe que quieres estrenar celular. Tenemos excelentes opciones para ti. 📱'
+    },
 }, { timestamps: true });
 
 export default mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema);

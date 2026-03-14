@@ -27,7 +27,8 @@ export async function PUT(request: Request) {
             settings = new SettingsModel(data);
         } else {
             console.log('UPDATING EXISTING SETTINGS DOC');
-            if (data.advisors) settings.advisors = data.advisors;
+            if (data.advisors !== undefined) settings.advisors = data.advisors;
+            if (data.referralMessage !== undefined) settings.referralMessage = data.referralMessage;
         }
 
         const saved = await settings.save();
