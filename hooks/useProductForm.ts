@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
+import { apiFetch } from '@/lib/apiFetch';
 
 const DEFAULT_FORM: Partial<Product> = {
     name: '',
@@ -53,9 +54,8 @@ export function useProductForm(
 
     // Fetch brand list for the select
     useEffect(() => {
-        fetch('/api/brands')
-            .then(r => r.json())
-            .then(data => setBrands(Array.isArray(data) ? data : []))
+        apiFetch<Brand[]>('/api/brands')
+            .then(data => setBrands(data))
             .catch(() => setBrands([]));
     }, []);
 
@@ -75,8 +75,12 @@ export function useProductForm(
         const body = new FormData();
         body.append('file', file);
         try {
-            const res = await fetch('/api/upload', { method: 'POST', body });
-            const data = await res.json();
+            const data = await apiFetch<{ url: string }>('/api/upload', {
+                method: 'POST',
+                body,
+                // Do not set Content-Type for FormData, browser will do it with boundary
+                headers: { 'Content-Type': '' }
+            });
             if (data.url) setFormData(prev => ({ ...prev, imageUrl: data.url }));
         } catch {
             setError('Error al subir la imagen. Intenta de nuevo.');
@@ -92,12 +96,10 @@ export function useProductForm(
         try {
             const url = initialData?.id ? `/api/products/${initialData.id}` : '/api/products';
             const method = initialData?.id ? 'PUT' : 'POST';
-            const res = await fetch(url, {
+            await apiFetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
-            if (!res.ok) throw new Error('Error al guardar el producto');
             onSuccess();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error desconocido');

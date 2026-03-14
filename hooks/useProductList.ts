@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
+import { apiFetch } from '@/lib/apiFetch';
 
 function resolveBrandId(product: Product): string {
     const b = product.brand;
@@ -24,10 +25,8 @@ export function useProductList() {
 
     const fetchProducts = useCallback(async () => {
         try {
-            const res = await fetch('/api/products');
-            if (!res.ok) throw new Error('Error al cargar productos');
-            const data = await res.json();
-            setProducts(Array.isArray(data) ? data : []);
+            const data = await apiFetch<Product[]>('/api/products');
+            setProducts(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error desconocido');
         } finally {
@@ -37,10 +36,8 @@ export function useProductList() {
 
     const fetchBrands = useCallback(async () => {
         try {
-            const res = await fetch('/api/brands');
-            if (!res.ok) throw new Error('Error al cargar marcas');
-            const data = await res.json();
-            setBrands(Array.isArray(data) ? data : []);
+            const data = await apiFetch<Brand[]>('/api/brands');
+            setBrands(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al cargar marcas');
         }
@@ -54,8 +51,7 @@ export function useProductList() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este producto?')) return;
         try {
-            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('Error al eliminar');
+            await apiFetch(`/api/products/${id}`, { method: 'DELETE' });
             setProducts(prev => prev.filter(p => p.id !== id));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al eliminar producto');
@@ -80,12 +76,10 @@ export function useProductList() {
         setProducts(prev => prev.map(p => p.id === product.id ? { ...p, stock: newStock } : p));
 
         try {
-            const res = await fetch(`/api/products/${product.id}`, {
+            await apiFetch(`/api/products/${product.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ stock: newStock }),
             });
-            if (!res.ok) throw new Error('Error al actualizar stock');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al registrar venta');
             await fetchProducts();

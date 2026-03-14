@@ -39,7 +39,18 @@ export class MongoProductRepository implements IProductRepository {
         return !!result;
     }
 
-    private mapToEntity(doc: any): Product {
+    private mapToEntity(doc: { 
+        _id: any; 
+        name: string; 
+        brand: any; 
+        price: number; 
+        stock?: number; 
+        description: string; 
+        imageUrl: string; 
+        specs?: any; 
+        createdAt?: Date; 
+        updatedAt?: Date; 
+    }): Product {
         return {
             id: doc._id.toString(),
             name: doc.name,
@@ -48,7 +59,7 @@ export class MongoProductRepository implements IProductRepository {
             stock: doc.stock ?? 0,
             description: doc.description,
             imageUrl: doc.imageUrl,
-            specs: doc.specs,
+            specs: doc.specs || {},
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
         };

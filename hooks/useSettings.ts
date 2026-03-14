@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Advisor } from '@/core/entities/Settings';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function useSettings() {
     const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -16,8 +17,7 @@ export function useSettings() {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('/api/settings');
-            const data = await res.json();
+            const data = await apiFetch<{ advisors?: Advisor[] }>('/api/settings');
             if (data.advisors) setAdvisors(data.advisors);
         } catch (error) {
             console.error('Error fetching settings', error);
@@ -48,8 +48,11 @@ export function useSettings() {
         formData.append('file', file);
 
         try {
-            const res = await fetch('/api/upload', { method: 'POST', body: formData });
-            const data = await res.json();
+            const data = await apiFetch<{ url: string }>('/api/upload', {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': '' }
+            });
             if (data.url) {
                 setAdvisors((prev) => {
                     const updated = [...prev];
@@ -67,15 +70,12 @@ export function useSettings() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const res = await fetch('/api/settings', {
+            await apiFetch('/api/settings', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ advisors }),
             });
-            if (res.ok) {
-                setMessage({ type: 'success', text: 'Configuración guardada correctamente' });
-                setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-            }
+            setMessage({ type: 'success', text: 'Configuración guardada correctamente' });
+            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
         } catch {
             setMessage({ type: 'error', text: 'Error al guardar la configuración' });
         } finally {

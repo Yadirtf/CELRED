@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, Save, Info } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useReferrals } from '@/hooks/useReferrals';
+import { apiFetch } from '@/lib/apiFetch';
 
 const VARIABLES = [
     { tag: '{nombre_referido}', desc: 'Nombre del contacto referido' },
@@ -11,28 +13,26 @@ const VARIABLES = [
 ];
 
 export default function MessageTemplateForm() {
-    const [message, setMessage] = useState('');
+    const { referralMessage, setReferralMessage } = useReferrals();
+    const [localMessage, setLocalMessage] = useState('');
     const [saving, setSaving] = useState(false);
     const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
+    // Sync local state with hook data when it loads
     useEffect(() => {
-        fetch('/api/settings')
-            .then(r => r.json())
-            .then(data => {
-                if (data.referralMessage) setMessage(data.referralMessage);
-            });
-    }, []);
+        if (referralMessage) setLocalMessage(referralMessage);
+    }, [referralMessage]);
 
     const handleSave = async () => {
         setSaving(true);
         setStatus('idle');
         try {
-            const res = await fetch('/api/settings', {
+            await apiFetch('/api/settings', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ referralMessage: message }),
+                body: JSON.stringify({ referralMessage: localMessage }),
             });
-            setStatus(res.ok ? 'saved' : 'error');
+            setReferralMessage(localMessage); // Update global hook state
+            setStatus('saved');
             setTimeout(() => setStatus('idle'), 3000);
         } catch {
             setStatus('error');
@@ -42,7 +42,7 @@ export default function MessageTemplateForm() {
     };
 
     const insertTag = (tag: string) => {
-        setMessage(prev => prev + tag);
+        setLocalMessage(prev => prev + tag);
     };
 
     return (
@@ -64,7 +64,6 @@ export default function MessageTemplateForm() {
             </div>
 
             <div className="p-5 space-y-4">
-                {/* Variables reference */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3 text-blue-700">
                         <Info className="w-4 h-4 shrink-0" />
@@ -83,26 +82,25 @@ export default function MessageTemplateForm() {
                             </button>
                         ))}
                     </div>
-                    <p className="text-xs text-blue-500 mt-2">Haz clic en una variable para insertarla, o escríbela directamente.</p>
+                    <p className="text-xs text-blue-500 mt-2">Haz clic en una variable para insertarla.</p>
                 </div>
 
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Mensaje</label>
                     <textarea
-                        value={message}
-                        onChange={e => setMessage(e.target.value)}
+                        value={localMessage}
+                        onChange={e => setLocalMessage(e.target.value)}
                         rows={5}
                         placeholder="¡Hola {nombre_referido}! 👋 Tu amigo {nombre_comprador} nos pasó tu contacto..."
                         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none leading-relaxed"
                     />
                 </div>
 
-                {/* Preview */}
-                {message && (
+                {localMessage && (
                     <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
                         <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Vista previa (ejemplo)</p>
                         <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                            {message
+                            {localMessage
                                 .replace(/\{nombre_referido\}/g, 'Carlos Ruiz')
                                 .replace(/\{nombre_comprador\}/g, 'Juan Pérez')
                                 .replace(/\{celular_comprador\}/g, '310-555-0000')}

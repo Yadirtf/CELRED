@@ -1,21 +1,22 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
-export interface ReferralFormEntry {
-    nombre: string;
-    whatsapp: string;
-    parentescoId: string;      // ObjectId referencing the Parentesco collection
-    parentescoNombre?: string; // Denormalized label for convenience
-}
-
-/** Shape returned by the API after populate('referencias.parentesco') */
 export interface PopulatedReferralEntry {
     _id: string;
     nombre: string;
     whatsapp: string;
-    parentesco: { _id: string; nombre: string };
+    parentesco: {
+        _id: string;
+        nombre: string;
+    };
     estado: 'Pendiente' | 'Contactado';
+}
+
+export interface ReferralFormEntry {
+    nombre: string;
+    parentescoId: string;
+    parentescoNombre?: string;
+    whatsapp: string;
 }
 
 export interface ReferenceRecord {
@@ -37,9 +38,7 @@ export function useReferrals() {
     const fetchRecords = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/references');
-            if (!res.ok) throw new Error('Error al cargar referencias');
-            const data = await res.json();
+            const data = await apiFetch<ReferenceRecord[]>('/api/references');
             setRecords(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -51,8 +50,7 @@ export function useReferrals() {
     useEffect(() => {
         fetchRecords();
         // Load referral message template from settings
-        fetch('/api/settings')
-            .then(r => r.json())
+        apiFetch<{ referralMessage?: string }>('/api/settings')
             .then(data => { if (data.referralMessage) setReferralMessage(data.referralMessage); })
             .catch(() => {});
     }, [fetchRecords]);
@@ -65,15 +63,10 @@ export function useReferrals() {
         setSaving(true);
         setError(null);
         try {
-            const res = await fetch('/api/references', {
+            await apiFetch('/api/references', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nombreComprador, whatsappComprador, referencias }),
             });
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Error al guardar');
-            }
             await fetchRecords();
             return true;
         } catch (err) {
@@ -99,12 +92,10 @@ export function useReferrals() {
         );
 
         try {
-            const res = await fetch(`/api/references/${recordId}`, {
+            await apiFetch(`/api/references/${recordId}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ referralId, estado: 'Contactado' }),
             });
-            if (!res.ok) throw new Error('Error al actualizar estado');
         } catch {
             // Revert on failure
             await fetchRecords();
@@ -113,7 +104,7 @@ export function useReferrals() {
 
     const deleteRecord = async (recordId: string) => {
         try {
-            await fetch(`/api/references/${recordId}`, { method: 'DELETE' });
+            await apiFetch(`/api/references/${recordId}`, { method: 'DELETE' });
             setRecords(prev => prev.filter(r => r._id !== recordId));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al eliminar');

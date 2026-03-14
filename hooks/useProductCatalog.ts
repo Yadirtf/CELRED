@@ -1,47 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Product } from '@/core/entities/Product';
 import { Brand } from '@/core/entities/Brand';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function useProductCatalog() {
     const [products, setProducts] = useState<Product[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedBrand, setSelectedBrand] = useState<string>('all');
+    const [selectedBrand, setSelectedBrand] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [productsRes, brandsRes] = await Promise.all([
-                    fetch('/api/products'),
-                    fetch('/api/brands'),
+                const [productsData, brandsData] = await Promise.all([
+                    apiFetch<Product[]>('/api/products'),
+                    apiFetch<Brand[]>('/api/brands')
                 ]);
-                const productsData = await productsRes.json();
-                const brandsData = await brandsRes.json();
-                setProducts(Array.isArray(productsData) ? productsData : []);
-                setBrands(Array.isArray(brandsData) ? brandsData : []);
+                setProducts(productsData);
+                setBrands(brandsData);
             } catch (error) {
-                console.error('Failed to fetch catalog data', error);
+                console.error('Error fetching catalog data', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, []);
 
-    const filteredProducts = products.filter((p) => {
-        const brandId =
-            typeof p.brand === 'object' && p.brand !== null
-                ? (p.brand as any)._id || (p.brand as Brand).id
-                : p.brand;
-        const matchesBrand = selectedBrand === 'all' || brandId === selectedBrand;
-        const matchesSearch =
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.description.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesBrand && matchesSearch;
-    });
+    const filteredProducts = useMemo(() => {
+        return products.filter((product) => {
+            const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                 product.description.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const brandId = typeof product.brand === 'object' ? (product.brand as any)._id || (product.brand as Brand).id : product.brand;
+            const matchesBrand = selectedBrand === 'all' || brandId === selectedBrand;
+            return matchesSearch && matchesBrand && product.stock > 0;
+        });
+    }, [products, searchTerm, selectedBrand]);
 
     return {
         products,

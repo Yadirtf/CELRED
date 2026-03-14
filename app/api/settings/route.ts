@@ -19,20 +19,16 @@ export async function PUT(request: Request) {
     try {
         await dbConnect();
         const data = await request.json();
-        console.log('UPDATING SETTINGS:', data);
 
         let settings = await SettingsModel.findOne();
         if (!settings) {
-            console.log('CREATING NEW SETTINGS DOC');
             settings = new SettingsModel(data);
         } else {
-            console.log('UPDATING EXISTING SETTINGS DOC');
             if (data.advisors !== undefined) settings.advisors = data.advisors;
             if (data.referralMessage !== undefined) settings.referralMessage = data.referralMessage;
         }
 
         const saved = await settings.save();
-        console.log('SAVED SETTINGS:', saved);
         return NextResponse.json(saved);
     } catch (error) {
         console.error('ERROR UPDATING SETTINGS:', error);

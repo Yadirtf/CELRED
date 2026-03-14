@@ -36,7 +36,14 @@ export class MongoBrandRepository implements IBrandRepository {
         return result !== null;
     }
 
-    private mapToEntity(doc: any): Brand {
+    private mapToEntity(doc: {
+        _id: any;
+        name: string;
+        logoUrl?: string;
+        description?: string;
+        createdAt?: Date;
+        updatedAt?: Date;
+    }): Brand {
         return {
             id: doc._id.toString(),
             name: doc.name,
