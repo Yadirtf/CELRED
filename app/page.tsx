@@ -36,7 +36,11 @@ function CatalogContent() {
     }
     const brandName = typeof product.brand === 'object' ? (product.brand as any).name : 'Celular';
     const message = `Hola, quiero información sobre el ${brandName} ${product.name}.`;
-    const url = `https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`;
+    
+    let cleanedWa = assignedWhatsApp.replace(/\D/g, '');
+    if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
+
+    const url = `https://wa.me/${cleanedWa}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
 

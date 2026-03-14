@@ -5,7 +5,11 @@ import { MessageCircle, Trash2, RefreshCw, Users, ClipboardList, Search, X } fro
 import { useReferrals, type ReferenceRecord, type PopulatedReferralEntry } from '@/hooks/useReferrals';
 
 function buildWhatsAppUrl(phone: string, message: string): string {
-    const cleaned = phone.replace(/\D/g, '');
+    let cleaned = phone.replace(/\D/g, '');
+    // If it's a 10-digit number (Colombia standard), prepend 57
+    if (cleaned.length === 10) {
+        cleaned = `57${cleaned}`;
+    }
     const encoded = encodeURIComponent(message);
     return `https://wa.me/${cleaned}?text=${encoded}`;
 }

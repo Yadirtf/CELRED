@@ -42,7 +42,9 @@ export function useShareProduct(product: Product | undefined, isOpen: boolean): 
     const buildLink = useCallback((): string => {
         if (!product || typeof window === 'undefined') return '';
         const params = new URLSearchParams();
-        params.set('wa', whatsappNumber.replace(/\D/g, '') || '573166541275');
+        let wa = whatsappNumber.replace(/\D/g, '');
+        if (wa.length === 10) wa = `57${wa}`;
+        params.set('wa', wa || '573166541275');
         if (advisorName) params.set('adv', advisorName);
         if (showPrice) params.set('sp', '1');
         return `${window.location.origin}/product/${product.id}?${params.toString()}`;

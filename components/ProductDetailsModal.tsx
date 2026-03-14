@@ -23,8 +23,12 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
             alert("No hay asesores disponibles en este momento.");
             return;
         }
+
+        let cleanedWa = assignedWhatsApp.replace(/\D/g, '');
+        if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
+
         const message = `Hola, quiero consultar por el ${brandName} ${product.name}.`;
-        window.open(`https://wa.me/${assignedWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
+        window.open(`https://wa.me/${cleanedWa}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     return (

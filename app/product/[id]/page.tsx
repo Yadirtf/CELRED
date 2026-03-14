@@ -56,8 +56,12 @@ function ProductContent({ params }: { params: Promise<{ id: string }> }) {
             }
             return;
         }
+
+        let cleanedWa = whatsapp.replace(/\D/g, '');
+        if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
+
         const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este ${brandName} en el catálogo y me interesa: ${product?.name}.`;
-        window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`, '_blank');
+        window.open(`https://wa.me/${cleanedWa}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     if (loading) return (
