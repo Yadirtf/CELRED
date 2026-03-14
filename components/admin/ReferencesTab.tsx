@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ClipboardList, UserPlus, MessageSquare } from 'lucide-react';
 import ReferralForm from '@/components/admin/ReferralForm';
 import ReferralDashboard from '@/components/admin/ReferralDashboard';
@@ -9,24 +9,16 @@ import { useReferrals } from '@/hooks/useReferrals';
 
 type SubTab = 'register' | 'dashboard' | 'message';
 
+const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'register', label: 'Registrar Referidos', icon: <UserPlus className="w-4 h-4" /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <ClipboardList className="w-4 h-4" /> },
+    { id: 'message', label: 'Mensaje Maestro', icon: <MessageSquare className="w-4 h-4" /> },
+];
+
 export default function ReferencesTab() {
     const [subTab, setSubTab] = useState<SubTab>('register');
-    const [referralMessage, setReferralMessage] = useState('');
-    const { addReferrals, saving } = useReferrals();
-
-    useEffect(() => {
-        fetch('/api/settings')
-            .then(r => r.json())
-            .then(data => {
-                if (data.referralMessage) setReferralMessage(data.referralMessage);
-            });
-    }, []);
-
-    const subTabs: { id: SubTab; label: string; icon: React.ReactNode }[] = [
-        { id: 'register', label: 'Registrar Referidos', icon: <UserPlus className="w-4 h-4" /> },
-        { id: 'dashboard', label: 'Dashboard', icon: <ClipboardList className="w-4 h-4" /> },
-        { id: 'message', label: 'Mensaje Maestro', icon: <MessageSquare className="w-4 h-4" /> },
-    ];
+    // referralMessage now lives in useReferrals — no direct API call needed here
+    const { addReferrals, saving, referralMessage } = useReferrals();
 
     return (
         <div className="space-y-6">
@@ -45,7 +37,7 @@ export default function ReferencesTab() {
 
             {/* Sub-tab Navigation */}
             <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-                {subTabs.map(tab => (
+                {SUB_TABS.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setSubTab(tab.id)}

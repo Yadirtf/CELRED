@@ -32,6 +32,7 @@ export function useReferrals() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [referralMessage, setReferralMessage] = useState('');
 
     const fetchRecords = useCallback(async () => {
         setLoading(true);
@@ -49,6 +50,11 @@ export function useReferrals() {
 
     useEffect(() => {
         fetchRecords();
+        // Load referral message template from settings
+        fetch('/api/settings')
+            .then(r => r.json())
+            .then(data => { if (data.referralMessage) setReferralMessage(data.referralMessage); })
+            .catch(() => {});
     }, [fetchRecords]);
 
     const addReferrals = async (
@@ -119,6 +125,8 @@ export function useReferrals() {
         loading,
         saving,
         error,
+        referralMessage,
+        setReferralMessage,
         addReferrals,
         markAsContacted,
         deleteRecord,
