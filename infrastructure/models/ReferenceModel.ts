@@ -19,6 +19,7 @@ export interface IReferralEntryPopulated extends Omit<IReferralEntry, 'parentesc
 export interface IReference extends Document {
     nombreComprador: string;
     whatsappComprador: string;
+    advisorId: string; // WhatsApp number or ID of the advisor
     referencias: IReferralEntry[];
     createdAt: Date;
     updatedAt: Date;
@@ -34,6 +35,7 @@ const ReferralEntrySchema = new Schema<IReferralEntry>({
 const ReferenceSchema = new Schema<IReference>({
     nombreComprador: { type: String, required: true, trim: true },
     whatsappComprador: { type: String, required: true, trim: true },
+    advisorId: { type: String, required: true, index: true },
     referencias: { type: [ReferralEntrySchema], default: [] },
 }, { timestamps: true });
 

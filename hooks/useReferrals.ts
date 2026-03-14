@@ -23,6 +23,7 @@ export interface ReferenceRecord {
     _id: string;
     nombreComprador: string;
     whatsappComprador: string;
+    advisorId: string;
     referencias: PopulatedReferralEntry[];
     createdAt: string;
     updatedAt: string;
@@ -35,10 +36,13 @@ export function useReferrals() {
     const [error, setError] = useState<string | null>(null);
     const [referralMessage, setReferralMessage] = useState('');
 
-    const fetchRecords = useCallback(async () => {
+    const fetchRecords = useCallback(async (advisorIdFilter?: string) => {
         setLoading(true);
         try {
-            const data = await apiFetch<ReferenceRecord[]>('/api/references');
+            const url = advisorIdFilter 
+                ? `/api/references?advisorId=${advisorIdFilter}` 
+                : '/api/references';
+            const data = await apiFetch<ReferenceRecord[]>(url);
             setRecords(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -58,6 +62,7 @@ export function useReferrals() {
     const addReferrals = async (
         nombreComprador: string,
         whatsappComprador: string,
+        advisorId: string,
         referencias: ReferralFormEntry[]
     ) => {
         setSaving(true);
@@ -65,7 +70,7 @@ export function useReferrals() {
         try {
             await apiFetch('/api/references', {
                 method: 'POST',
-                body: JSON.stringify({ nombreComprador, whatsappComprador, referencias }),
+                body: JSON.stringify({ nombreComprador, whatsappComprador, advisorId, referencias }),
             });
             await fetchRecords();
             return true;

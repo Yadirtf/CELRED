@@ -114,29 +114,45 @@ function ParentescoCombobox({ options, value, displayValue, onChange, placeholde
 
 // ─── Main Form ──────────────────────────────────────────────────────────────
 interface Props {
-    onSubmit: (nombreComprador: string, whatsappComprador: string, referencias: ReferralFormEntry[]) => Promise<boolean>;
+    onSubmit: (nombreComprador: string, whatsappComprador: string, advisorId: string, referencias: ReferralFormEntry[]) => Promise<boolean>;
     saving: boolean;
 }
 
 export default function ReferralForm({ onSubmit, saving }: Props) {
     const [nombreComprador, setNombreComprador] = useState('');
     const [whatsappComprador, setWhatsappComprador] = useState('');
+    const [selectedAdvisorId, setSelectedAdvisorId] = useState('');
     const [parentescos, setParentescos] = useState<ParentescoOption[]>([]);
+    const [advisors, setAdvisors] = useState<{ number: string; name?: string }[]>([]);
     const [referencias, setReferencias] = useState<ReferralFormEntry[]>([]);
     const [formError, setFormError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loadingOptions, setLoadingOptions] = useState(true);
 
     useEffect(() => {
-        fetch('/api/parentescos')
-            .then(r => r.json())
-            .then((data: ParentescoOption[]) => {
-                setParentescos(data);
-                if (data.length > 0) {
-                    setReferencias([emptyEntry(data[0]._id, data[0].nombre)]);
+        const loadInitialData = async () => {
+            try {
+                const [parentescosRes, settingsRes] = await Promise.all([
+                    fetch('/api/parentescos'),
+                    fetch('/api/settings')
+                ]);
+                const parentescosData = await parentescosRes.json();
+                const settingsData = await settingsRes.json();
+
+                setParentescos(parentescosData);
+                setAdvisors(settingsData.advisors || []);
+                
+                if (parentescosData.length > 0) {
+                    setReferencias([emptyEntry(parentescosData[0]._id, parentescosData[0].nombre)]);
                 }
-            })
-            .finally(() => setLoadingOptions(false));
+            } catch (error) {
+                console.error('Error loading initial data', error);
+            } finally {
+                setLoadingOptions(false);
+            }
+        };
+
+        loadInitialData();
     }, []);
 
     const handleAddRow = () => {
@@ -171,13 +187,18 @@ export default function ReferralForm({ onSubmit, saving }: Props) {
             return;
         }
 
+        if (!selectedAdvisorId) {
+            setFormError('Debes seleccionar un asesor.');
+            return;
+        }
+
         const validRefs = referencias.filter(r => r.nombre.trim() && r.whatsapp.trim() && r.parentescoId);
         if (validRefs.length === 0) {
             setFormError('Agrega al menos una referencia con nombre, WhatsApp y parentesco.');
             return;
         }
 
-        const ok = await onSubmit(nombreComprador.trim(), whatsappComprador.trim(), validRefs);
+        const ok = await onSubmit(nombreComprador.trim(), whatsappComprador.trim(), selectedAdvisorId, validRefs);
         if (ok) {
             const first = parentescos[0];
             setNombreComprador('');
@@ -194,11 +215,39 @@ export default function ReferralForm({ onSubmit, saving }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Advisor Selector */}
+            <div className="bg-white border-2 border-red-50 rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
+                        <UserPlus className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-bold text-gray-900">¿Quién registra?</h3>
+                        <p className="text-xs text-gray-500">Selecciona tu nombre de asesora</p>
+                    </div>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                    <select
+                        value={selectedAdvisorId}
+                        onChange={e => setSelectedAdvisorId(e.target.value)}
+                        className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 appearance-none bg-white transition-all ${selectedAdvisorId ? 'border-red-200 bg-red-50/30' : 'border-gray-200'}`}
+                    >
+                        <option value="">-- Elige tu nombre --</option>
+                        {advisors.map(adv => (
+                            <option key={adv.number} value={adv.number}>
+                                {adv.name || adv.number}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
             {/* Buyer Block */}
             <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-red-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                    <UserPlus className="w-4 h-4" />
-                    Datos del Comprador
+                    <Search className="w-4 h-4" />
+                    Datos del Comprador (Quien da la referencia)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>

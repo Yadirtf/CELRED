@@ -57,7 +57,10 @@ export default function ReferencesTab() {
             {subTab === 'register' && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                     <h3 className="text-base font-bold text-gray-800 mb-5">Nuevo Registro de Referidos</h3>
-                    <ReferralForm onSubmit={addReferrals} saving={saving} />
+                    <ReferralForm 
+                        onSubmit={(n, w, a, r) => addReferrals(n, w, a, r)} 
+                        saving={saving} 
+                    />
                 </div>
             )}
 

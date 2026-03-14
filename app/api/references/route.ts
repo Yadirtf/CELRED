@@ -4,12 +4,17 @@ import ReferenceModel from '@/infrastructure/models/ReferenceModel';
 // Import ParentescoModel so Mongoose registers it before populate is called
 import '@/infrastructure/models/ParentescoModel';
 
-// GET /api/references - List all references with populated parentesco
-export async function GET() {
+// GET /api/references - List references (optionally filtered by advisorId)
+export async function GET(request: Request) {
     try {
         await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const advisorId = searchParams.get('advisorId');
+        
+        const filter = advisorId ? { advisorId } : {};
+        
         const references = await ReferenceModel
-            .find()
+            .find(filter)
             .sort({ createdAt: -1 })
             .populate('referencias.parentesco', 'nombre')
             .lean();
@@ -26,11 +31,11 @@ export async function POST(request: Request) {
         await dbConnect();
         const data = await request.json();
 
-        const { nombreComprador, whatsappComprador, referencias } = data;
+        const { nombreComprador, whatsappComprador, advisorId, referencias } = data;
 
-        if (!nombreComprador || !whatsappComprador || !referencias || referencias.length === 0) {
+        if (!nombreComprador || !whatsappComprador || !advisorId || !referencias || referencias.length === 0) {
             return NextResponse.json(
-                { error: 'Datos incompletos. Se requiere comprador y al menos una referencia.' },
+                { error: 'Datos incompletos. Se requiere comprador, asesor y al menos una referencia.' },
                 { status: 400 }
             );
         }
@@ -38,6 +43,7 @@ export async function POST(request: Request) {
         const newReference = await ReferenceModel.create({
             nombreComprador: nombreComprador.trim(),
             whatsappComprador: whatsappComprador.trim(),
+            advisorId: advisorId.trim(),
             referencias: referencias.map((r: { nombre: string; whatsapp: string; parentescoId: string }) => ({
                 nombre: r.nombre?.trim(),
                 whatsapp: r.whatsapp?.trim(),

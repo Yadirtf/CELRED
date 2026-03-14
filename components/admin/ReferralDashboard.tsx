@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MessageCircle, Trash2, RefreshCw, Users, ClipboardList, Search, X } from 'lucide-react';
 import { useReferrals, type ReferenceRecord, type PopulatedReferralEntry } from '@/hooks/useReferrals';
 
@@ -30,12 +30,29 @@ export default function ReferralDashboard({ referralMessage }: Props) {
     const { records, loading, error, markAsContacted, deleteRecord, refetch } = useReferrals();
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
+    const [selectedAdvisorId, setSelectedAdvisorId] = useState('all');
+    const [advisors, setAdvisors] = useState<{ number: string; name?: string }[]>([]);
 
-    // Filter records: keep a group if the buyer OR any referral matches the search term
+    useEffect(() => {
+        fetch('/api/settings')
+            .then(r => r.json())
+            .then(data => {
+                if (data.advisors) setAdvisors(data.advisors);
+            });
+    }, []);
+
+    // Filter records: advisorId filter + search term
     const filteredRecords = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return records;
-        return records
+        let base = records;
+
+        if (selectedAdvisorId !== 'all') {
+            base = base.filter(r => r.advisorId === selectedAdvisorId);
+        }
+
+        if (!q) return base;
+        
+        return base
             .map(record => {
                 const buyerMatch =
                     record.nombreComprador.toLowerCase().includes(q) ||
@@ -52,10 +69,10 @@ export default function ReferralDashboard({ referralMessage }: Props) {
                 return null;
             })
             .filter(Boolean) as typeof records;
-    }, [records, search]);
+    }, [records, search, selectedAdvisorId]);
 
     const totalRefs = filteredRecords.reduce((acc, r) => acc + r.referencias.length, 0);
-    const isFiltered = search.trim().length > 0;
+    const isFiltered = search.trim().length > 0 || selectedAdvisorId !== 'all';
 
     const handleWhatsApp = async (record: ReferenceRecord, ref: PopulatedReferralEntry) => {
         const msg = processMessage(referralMessage, ref.nombre, record.nombreComprador, record.whatsappComprador);
@@ -100,25 +117,43 @@ export default function ReferralDashboard({ referralMessage }: Props) {
 
     return (
         <div className="space-y-4">
-            {/* Search bar */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                <input
-                    type="text"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Buscar por nombre o celular (comprador o referido)..."
-                    className="w-full pl-9 pr-9 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
-                />
-                {search && (
-                    <button
-                        onClick={() => setSearch('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            {/* Filters bar */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        placeholder="Buscar por nombre o celular..."
+                        className="w-full pl-9 pr-9 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
+                    />
+                    {search && (
+                        <button
+                            onClick={() => setSearch('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+                
+                <div className="w-full sm:w-64">
+                    <select
+                        value={selectedAdvisorId}
+                        onChange={e => setSelectedAdvisorId(e.target.value)}
+                        className={`w-full py-2.5 px-4 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300 appearance-none bg-white transition-all ${selectedAdvisorId !== 'all' ? 'border-red-200 bg-red-50' : 'border-gray-200'}`}
                     >
-                        <X className="w-4 h-4" />
-                    </button>
-                )}
+                        <option value="all">📁 Todas las asesoras</option>
+                        {advisors.map(adv => (
+                            <option key={adv.number} value={adv.number}>
+                                👩‍💼 {adv.name || adv.number}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
+
             {/* Header stats */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -129,13 +164,13 @@ export default function ReferralDashboard({ referralMessage }: Props) {
                         <strong className="text-gray-700">{totalRefs}</strong> referencias
                         {isFiltered && (
                             <span className="ml-2 text-xs text-red-500 font-medium">
-                                (filtrado de {records.length} / {records.reduce((a, r) => a + r.referencias.length, 0)})
+                                (filtrado)
                             </span>
                         )}
                     </span>
                 </div>
                 <button
-                    onClick={refetch}
+                    onClick={() => refetch()}
                     className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
                 >
                     <RefreshCw className="w-3 h-3" />
