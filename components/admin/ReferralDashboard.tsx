@@ -20,10 +20,10 @@ function processMessage(
     nombreComprador: string,
     celularComprador: string
 ): string {
-    return template
-        .replace(/\{nombre_referido\}/g, nombreReferido)
-        .replace(/\{nombre_comprador\}/g, nombreComprador)
-        .replace(/\{celular_comprador\}/g, celularComprador);
+    return (template || '')
+        .replace(/\{nombre_referido\}/g, nombreReferido || '')
+        .replace(/\{nombre_comprador\}/g, nombreComprador || '')
+        .replace(/\{celular_comprador\}/g, celularComprador || '');
 }
 
 interface Props {
