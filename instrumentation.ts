@@ -10,6 +10,11 @@ export async function register() {
         const { seedParentescos } = await import(
             '@/infrastructure/database/seedParentescos'
         );
+        const { runMigrations } = await import(
+            '@/infrastructure/database/runMigrations'
+        );
+        
         await seedParentescos();
+        await runMigrations();
     }
 }
