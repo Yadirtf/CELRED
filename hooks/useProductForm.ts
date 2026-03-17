@@ -78,8 +78,7 @@ export function useProductForm(
             const data = await apiFetch<{ url: string }>('/api/upload', {
                 method: 'POST',
                 body,
-                // Do not set Content-Type for FormData, browser will do it with boundary
-                headers: { 'Content-Type': '' }
+                // Browser will set Content-Type with boundary for FormData
             });
             if (data.url) setFormData(prev => ({ ...prev, imageUrl: data.url }));
         } catch {

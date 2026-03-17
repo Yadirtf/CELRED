@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const file = formData.get('file') as File;
+        console.log(`[upload] Receiving file: ${file?.name} (${file?.size} bytes)`);
 
         if (!file) {
             return NextResponse.json(
@@ -43,8 +44,8 @@ export async function POST(request: Request) {
             url: result.secure_url
         });
 
-    } catch (error) {
-        console.error('Upload error:', error);
-        return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Upload error detail:', error);
+        return NextResponse.json({ error: error.message || 'Failed to upload image' }, { status: 500 });
     }
 }
