@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { QuickNote } from '@/core/entities/QuickNote';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
+import QuickNoteViewModal from './QuickNoteViewModal';
 
 export default function QuickNoteList() {
     const { 
@@ -26,6 +27,7 @@ export default function QuickNoteList() {
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingNote, setEditingNote] = useState<QuickNote | null>(null);
+    const [viewingNote, setViewingNote] = useState<QuickNote | null>(null);
 
     const handleOpenCreate = () => {
         setEditingNote(null);
@@ -86,9 +88,18 @@ export default function QuickNoteList() {
                             onEdit={handleOpenEdit}
                             onDelete={deleteNote}
                             onCopy={copyToClipboard}
+                            onView={setViewingNote}
                         />
                     ))}
                 </div>
+            )}
+
+            {viewingNote && (
+                <QuickNoteViewModal
+                    note={viewingNote}
+                    onClose={() => setViewingNote(null)}
+                    onCopy={copyToClipboard}
+                />
             )}
 
             {isFormOpen && (

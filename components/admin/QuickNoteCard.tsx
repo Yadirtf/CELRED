@@ -1,8 +1,6 @@
-'use client';
-
 import { useState } from 'react';
 import { QuickNote } from '@/core/entities/QuickNote';
-import { Copy, Edit2, Trash2, Check } from 'lucide-react';
+import { Copy, Edit2, Trash2, Check, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 interface QuickNoteCardProps {
@@ -10,9 +8,10 @@ interface QuickNoteCardProps {
     onEdit: (note: QuickNote) => void;
     onDelete: (id: string) => void;
     onCopy: (content: string) => Promise<boolean>;
+    onView: (note: QuickNote) => void;
 }
 
-export default function QuickNoteCard({ note, onEdit, onDelete, onCopy }: QuickNoteCardProps) {
+export default function QuickNoteCard({ note, onEdit, onDelete, onCopy, onView }: QuickNoteCardProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -49,23 +48,33 @@ export default function QuickNoteCard({ note, onEdit, onDelete, onCopy }: QuickN
                 {note.content}
             </p>
 
-            <Button 
-                onClick={handleCopy} 
-                variant={copied ? 'ghost' : 'primary'}
-                className={`mt-auto w-full gap-2 ${copied ? 'bg-green-50 text-green-600' : 'bg-green-600 hover:bg-green-700'}`}
-            >
-                {copied ? (
-                    <>
-                        <Check className="w-4 h-4" />
-                        Copiado
-                    </>
-                ) : (
-                    <>
-                        <Copy className="w-4 h-4" />
-                        Copiar Mensaje
-                    </>
-                )}
-            </Button>
+            <div className="flex gap-2 mt-auto">
+                <Button 
+                    onClick={() => onView(note)}
+                    variant="ghost"
+                    className="flex-shrink-0 p-2 h-auto rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 text-blue-600"
+                    title="Ver completo"
+                >
+                    <Eye className="w-5 h-5" />
+                </Button>
+                <Button 
+                    onClick={handleCopy} 
+                    variant={copied ? 'ghost' : 'primary'}
+                    className={`flex-1 gap-2 ${copied ? 'bg-green-50 text-green-600' : 'bg-green-600 hover:bg-green-700'}`}
+                >
+                    {copied ? (
+                        <>
+                            <Check className="w-4 h-4" />
+                            Copiado
+                        </>
+                    ) : (
+                        <>
+                            <Copy className="w-4 h-4" />
+                            Copiar
+                        </>
+                    )}
+                </Button>
+            </div>
         </div>
     );
 }
