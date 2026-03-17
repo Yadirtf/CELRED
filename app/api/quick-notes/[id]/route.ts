@@ -5,10 +5,11 @@ import { MongoQuickNoteRepository } from '../../../../infrastructure/repositorie
 const quickNoteRepository = new MongoQuickNoteRepository();
 const quickNoteService = new QuickNoteService(quickNoteRepository);
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     try {
         const body = await request.json();
-        const updatedNote = await quickNoteService.updateQuickNote(params.id, body);
+        const updatedNote = await quickNoteService.updateQuickNote(id, body);
         if (!updatedNote) {
             return NextResponse.json({ error: 'Quick note not found' }, { status: 404 });
         }
@@ -18,9 +19,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     try {
-        const success = await quickNoteService.deleteQuickNote(params.id);
+        const success = await quickNoteService.deleteQuickNote(id);
         if (!success) {
             return NextResponse.json({ error: 'Quick note not found' }, { status: 404 });
         }
