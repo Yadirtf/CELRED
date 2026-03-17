@@ -5,9 +5,10 @@ import ProductList from '@/components/admin/ProductList';
 import BrandList from '@/components/admin/BrandList';
 import SettingsForm from '@/components/admin/SettingsForm';
 import ReferencesTab from '@/components/admin/ReferencesTab';
+import QuickNoteList from '@/components/admin/QuickNoteList';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { LogOut } from 'lucide-react';
+import { LogOut, MessageSquareCode } from 'lucide-react';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -37,27 +38,36 @@ export default function AdminPage() {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-gray-200 overflow-x-auto scrollbar-hide">
                 <button
-                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'products' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'products' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
                     onClick={() => setActiveTab('products')}
                 >
                     Productos
                 </button>
                 <button
-                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'brands' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'brands' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
                     onClick={() => setActiveTab('brands')}
                 >
                     Marcas
                 </button>
                 <button
-                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'advisors' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'advisors' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
                     onClick={() => setActiveTab('advisors')}
                 >
                     Asesores (WhatsApp)
                 </button>
                 <button
-                    className={`py-2 px-4 text-sm font-medium ${activeTab === 'references' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'quick-notes' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('quick-notes')}
+                >
+                    <span className="flex items-center gap-2">
+                        <MessageSquareCode className="w-4 h-4" />
+                        Mensajes Rápidos
+                    </span>
+                </button>
+                <button
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'references' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-500 hover:text-gray-700'}`}
                     onClick={() => setActiveTab('references')}
                 >
                     📋 Referencias
@@ -65,7 +75,7 @@ export default function AdminPage() {
             </div>
 
             {/* Tab Content */}
-            <main className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <main className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-h-[400px]">
                 {activeTab === 'products' && (
                     <div className="space-y-4">
                         <ProductList />
@@ -75,6 +85,8 @@ export default function AdminPage() {
                 {activeTab === 'brands' && <BrandList />}
 
                 {activeTab === 'advisors' && <SettingsForm />}
+
+                {activeTab === 'quick-notes' && <QuickNoteList />}
 
                 {activeTab === 'references' && <ReferencesTab />}
             </main>
