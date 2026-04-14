@@ -7,8 +7,7 @@ import ProductForm from '@/components/admin/ProductForm';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import ProductFilter from '@/components/ProductFilter';
 import ShareProductModal from '@/components/admin/ShareProductModal';
-import ProductTableRow from '@/components/admin/ProductTableRow';
-import ProductMobileCard from '@/components/admin/ProductMobileCard';
+import AdminProductCard from '@/components/admin/AdminProductCard';
 import { useProductList } from '@/hooks/useProductList';
 import { exportProductsToExcel } from '@/lib/exportExcel';
 import DownloadCatalogButton from '@/components/pdf/DownloadCatalogButton';
@@ -129,58 +128,26 @@ export default function ProductList() {
                 product={sharingProduct}
             />
 
-            {/* Table */}
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                {/* Desktop View */}
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
-                            <tr>
-                                <th className="px-6 py-4 font-medium">Foto</th>
-                                <th className="px-6 py-4 font-medium">Nombre</th>
-                                <th className="px-6 py-4 font-medium">Precio</th>
-                                <th className="px-6 py-4 font-medium">Stock</th>
-                                <th className="px-6 py-4 font-medium text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {filteredProducts.map((product) => (
-                                <ProductTableRow
-                                    key={product.id}
-                                    product={product}
-                                    onSell={handleSell}
-                                    onShare={handleShare}
-                                    onView={handleView}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Mobile View */}
-                <div className="md:hidden divide-y divide-gray-100">
-                    {filteredProducts.map((product) => (
-                        <ProductMobileCard
-                            key={product.id}
-                            product={product}
-                            onSell={handleSell}
-                            onShare={handleShare}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                        />
-                    ))}
-                </div>
-
-                {filteredProducts.length === 0 && (
-                    <div className="px-6 py-12 text-center text-gray-500">
-                        {/* products from hook is not accessible here, simplify message */}
-                        No se encontraron celulares con los filtros aplicados.
-                    </div>
-                )}
+            {/* Grid View */}
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                {filteredProducts.map((product) => (
+                    <AdminProductCard
+                        key={product.id}
+                        product={product}
+                        onSell={handleSell}
+                        onShare={handleShare}
+                        onView={handleView}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                ))}
             </div>
+
+            {filteredProducts.length === 0 && (
+                <div className="px-6 py-16 text-center bg-white rounded-2xl shadow-sm border border-dashed border-gray-300 mt-2">
+                    <p className="text-gray-500 font-medium">No se encontraron celulares con los filtros aplicados.</p>
+                </div>
+            )}
         </div>
     );
 }
