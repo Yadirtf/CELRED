@@ -49,7 +49,7 @@ function ProductContent({ params }: { params: Promise<{ id: string }> }) {
         fetchProduct();
     }, [id, whatsapp]);
 
-    const handleContact = () => {
+    const handleContact = (opcion: 'financiado' | 'de contado') => {
         if (!whatsapp) {
             if (!isLoadingAdvisor) {
                 alert("No hay asesores disponibles en este momento. Por favor, intenta más tarde.");
@@ -60,7 +60,7 @@ function ProductContent({ params }: { params: Promise<{ id: string }> }) {
         let cleanedWa = whatsapp.replace(/\D/g, '');
         if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
 
-        const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este ${brandName} en el catálogo y me interesa: ${product?.name}.`;
+        const message = `Hola${advisorName ? ' ' + advisorName : ''}, vi este ${brandName} en el catálogo y me interesa: ${product?.name}. Lo quiero ${opcion}.`;
         window.open(`https://wa.me/${cleanedWa}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
@@ -172,13 +172,22 @@ function ProductContent({ params }: { params: Promise<{ id: string }> }) {
                                         </div>
                                     </div>
                                 )}
-                                <Button
-                                    className="w-full py-8 text-xl font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 gap-3 group transition-all"
-                                    onClick={handleContact}
-                                >
-                                    <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
-                                    Hablar con {advisorName || 'un asesor'}
-                                </Button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                    <Button
+                                        className="w-full py-6 text-lg font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 gap-2 group transition-all"
+                                        onClick={() => handleContact('financiado')}
+                                    >
+                                        <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                        Lo quiero financiado
+                                    </Button>
+                                    <Button
+                                        className="w-full py-6 text-lg font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 gap-2 group transition-all"
+                                        onClick={() => handleContact('de contado')}
+                                    >
+                                        <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                        Lo quiero de contado
+                                    </Button>
+                                </div>
                             </div>
                             <p className="text-center text-xs text-gray-400 mt-4 leading-tight">
                                 Al hacer clic serás redirigido a WhatsApp para concretar tu compra con {advisorName || 'nuestro equipo'}.

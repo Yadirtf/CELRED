@@ -18,7 +18,7 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
         ? (product.brand as Brand).name
         : 'Unknown Brand';
 
-    const handleWhatsAppClick = () => {
+    const handleWhatsAppClick = (opcion: 'financiado' | 'de contado') => {
         if (!assignedWhatsApp) {
             alert("No hay asesores disponibles en este momento.");
             return;
@@ -27,7 +27,7 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
         let cleanedWa = assignedWhatsApp.replace(/\D/g, '');
         if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
 
-        const message = `Hola, quiero consultar por el ${brandName} ${product.name}.`;
+        const message = `Hola, quiero consultar por el ${brandName} ${product.name}. Lo quiero ${opcion}.`;
         window.open(`https://wa.me/${cleanedWa}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
@@ -98,14 +98,24 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                         )}
 
                         <div className="pt-6 mt-auto space-y-3">
-                            <Button
-                                className={`w-full py-6 text-lg gap-2 ${product.stock === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200' : 'bg-green-600 hover:bg-green-700'}`}
-                                onClick={handleWhatsAppClick}
-                                disabled={product.stock === 0}
-                            >
-                                <MessageCircle className="w-6 h-6" />
-                                {product.stock === 0 ? 'Producto Agotado' : 'Consultar por WhatsApp'}
-                            </Button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                                <Button
+                                    className={`w-full py-6 text-sm sm:text-base gap-2 ${product.stock === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200' : 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200'}`}
+                                    onClick={() => handleWhatsAppClick('financiado')}
+                                    disabled={product.stock === 0}
+                                >
+                                    <MessageCircle className="w-5 h-5 shrink-0" />
+                                    {product.stock === 0 ? 'Agotado' : 'Lo quiero financiado'}
+                                </Button>
+                                <Button
+                                    className={`w-full py-6 text-sm sm:text-base gap-2 ${product.stock === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200' : 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200'}`}
+                                    onClick={() => handleWhatsAppClick('de contado')}
+                                    disabled={product.stock === 0}
+                                >
+                                    <MessageCircle className="w-5 h-5 shrink-0" />
+                                    {product.stock === 0 ? 'Agotado' : 'Lo quiero de contado'}
+                                </Button>
+                            </div>
                             <Button variant="ghost" className="w-full py-4" onClick={onClose}>
                                 Cerrar
                             </Button>

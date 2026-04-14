@@ -6,7 +6,7 @@ import { MessageCircle } from 'lucide-react';
 
 interface ProductCardProps {
     product: Product;
-    onWhatsApp: (product: Product) => void;
+    onWhatsApp: (product: Product, opcion: 'financiado' | 'de contado') => void;
     onView: (product: Product) => void;
 }
 
@@ -87,21 +87,33 @@ export default function ProductCard({ product, onWhatsApp, onView }: ProductCard
                                 Financiación Disponible
                             </span>
                         </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => onWhatsApp(product)}
-                                disabled={outOfStock}
-                                className={`flex-1 rounded-full ${outOfStock ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-green-50 text-green-600 hover:bg-green-100 border-green-100'}`}
-                            >
-                                <MessageCircle className="w-4 h-4 mr-2" />
-                                {outOfStock ? 'Sin Stock' : 'WhatsApp'}
-                            </Button>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => onWhatsApp(product, 'financiado')}
+                                    disabled={outOfStock}
+                                    className={`flex-1 rounded-full px-2 text-xs ${outOfStock ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200'}`}
+                                >
+                                    <MessageCircle className="w-3 h-3 mr-1" />
+                                    {outOfStock ? 'Agotado' : 'Financiado'}
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => onWhatsApp(product, 'de contado')}
+                                    disabled={outOfStock}
+                                    className={`flex-1 rounded-full px-2 text-xs ${outOfStock ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200'}`}
+                                >
+                                    <MessageCircle className="w-3 h-3 mr-1" />
+                                    {outOfStock ? 'Agotado' : 'De contado'}
+                                </Button>
+                            </div>
                             <Button
                                 size="sm"
                                 onClick={() => onView(product)}
-                                className="flex-1 rounded-full text-xs"
+                                className="w-full rounded-full text-xs"
                             >
                                 Ver Detalles
                             </Button>

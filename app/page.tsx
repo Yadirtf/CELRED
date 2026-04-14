@@ -27,7 +27,7 @@ function CatalogContent() {
   const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const handleWhatsAppClick = (product: Product) => {
+  const handleWhatsAppClick = (product: Product, opcion: 'financiado' | 'de contado') => {
     if (!assignedWhatsApp) {
       if (!isLoadingAdvisor) {
         alert('No hay asesores disponibles en este momento. Por favor, intenta más tarde.');
@@ -35,7 +35,7 @@ function CatalogContent() {
       return;
     }
     const brandName = typeof product.brand === 'object' ? (product.brand as any).name : 'Celular';
-    const message = `Hola, quiero información sobre el ${brandName} ${product.name}.`;
+    const message = `Hola, quiero información sobre el ${brandName} ${product.name}. Lo quiero ${opcion}.`;
     
     let cleanedWa = assignedWhatsApp.replace(/\D/g, '');
     if (cleanedWa.length === 10) cleanedWa = `57${cleanedWa}`;
