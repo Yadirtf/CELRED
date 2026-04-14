@@ -12,10 +12,10 @@ export default function EmptyState({
     icon,
 }: EmptyStateProps) {
     return (
-        <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 shadow-sm">
             {icon ? icon : <Search className="w-12 h-12 text-gray-300 mb-4" />}
-            <p className="text-xl text-gray-500 font-medium">{message}</p>
-            <p className="text-gray-400 text-sm mt-1 text-center max-w-sm">{hint}</p>
+            <p className="text-xl text-gray-900 font-bold">{message}</p>
+            <p className="text-gray-500 text-sm mt-1 text-center max-w-sm">{hint}</p>
         </div>
     );
 }

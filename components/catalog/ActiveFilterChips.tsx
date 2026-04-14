@@ -31,15 +31,15 @@ export default function ActiveFilterChips({
         <div className="flex flex-col gap-2 pt-3 pb-1">
             <div className="flex flex-wrap items-center gap-2">
                 {selectedBrand !== 'all' && selectedBrandName && (
-                    <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                         {selectedBrandName}
-                        <button onClick={onBrandClear} className="hover:text-blue-900 transition-colors">
+                        <button onClick={onBrandClear} className="hover:text-red-800 transition-colors">
                             <X className="w-3 h-3" />
                         </button>
                     </span>
                 )}
                 {searchTerm && (
-                    <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1.5 bg-white text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
                         "{searchTerm}"
                         <button onClick={onSearchClear} className="hover:text-gray-900 transition-colors">
                             <X className="w-3 h-3" />
@@ -49,7 +49,7 @@ export default function ActiveFilterChips({
             </div>
 
             <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                     {totalFiltered} Resultado{totalFiltered !== 1 ? 's' : ''}
                 </span>
                 <button

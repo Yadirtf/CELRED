@@ -72,12 +72,12 @@ function CatalogContent() {
         <div className="flex-1 min-w-0 space-y-6">
           {/* Desktop header */}
           <div className="hidden lg:flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
               {selectedBrand === 'all'
-                ? 'Todos los productos'
-                : `Productos ${brands.find((b) => b.id === selectedBrand)?.name ?? ''}`}
+                ? 'Catálogo de Dispositivos'
+                : `Colección ${brands.find((b) => b.id === selectedBrand)?.name ?? ''}`}
             </h2>
-            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-bold">
+            <span className="text-sm text-gray-600 bg-white shadow-sm border border-gray-100 px-4 py-1.5 rounded-full font-bold">
               {filteredProducts.length} encontrados
             </span>
           </div>

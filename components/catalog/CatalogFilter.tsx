@@ -31,11 +31,11 @@ function DesktopSidebar(props: CatalogFilterProps) {
                 <CatalogSearch value={searchTerm} onChange={onSearchChange} placeholder="Buscar celular..." />
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm font-bold text-gray-800">Marcas</span>
+                        <Tag className="w-4 h-4 text-red-500" />
+                        <span className="text-sm font-bold text-gray-900">Marcas</span>
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@ function DesktopSidebar(props: CatalogFilterProps) {
                     <div className="p-3 border-t border-gray-50">
                         <button
                             onClick={() => { onBrandChange('all'); onSearchChange(''); }}
-                            className="w-full py-2 text-xs text-red-600 hover:bg-red-50 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
+                            className="w-full py-2.5 text-xs text-red-600 hover:bg-red-50 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                         >
                             <X className="w-3.5 h-3.5" /> Limpiar Filtros
                         </button>
@@ -79,7 +79,7 @@ function MobileFilter(props: CatalogFilterProps) {
             {/* Sticky Row: This must be a direct child of the flex container in page.tsx if possible, 
                 or we use 'contents' to pass through the sticky behavior to the actual sticky div 
                 so it stays relative to the tall container. */}
-            <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-md -mx-4 px-4 py-3 flex items-center gap-3 transition-shadow">
+            <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm -mx-4 px-4 py-3 flex items-center gap-3 transition-shadow">
                 <CatalogSearch
                     value={searchTerm}
                     onChange={onSearchChange}
@@ -89,8 +89,8 @@ function MobileFilter(props: CatalogFilterProps) {
 
                 <button
                     onClick={() => setIsDrawerOpen(true)}
-                    className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all shrink-0 ${activeFiltersCount > 0
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                    className={`relative flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-bold border transition-all shrink-0 ${activeFiltersCount > 0
+                            ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-200'
                             : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
                         }`}
                 >
@@ -123,8 +123,8 @@ function MobileFilter(props: CatalogFilterProps) {
                 onAction={() => setIsDrawerOpen(false)}
             >
                 <div className="p-6 space-y-4 pb-10">
-                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-blue-500" />
+                    <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-red-500" />
                         Marcas
                     </h4>
                     <BrandFilterList

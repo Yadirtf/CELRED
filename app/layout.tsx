@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-red-100 via-red-50 to-orange-100 text-gray-900 antialiased`}>
+      <body className={`${inter.className} min-h-screen bg-[#F5F5F7] text-gray-900 antialiased`}>
         <Navbar />
         <main className="container mx-auto px-4 py-8">
           {children}

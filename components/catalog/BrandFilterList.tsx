@@ -40,16 +40,16 @@ export default function BrandFilterList({
 
     const getActiveClasses = (isActive: boolean) => {
         if (isActive) {
-            return "bg-blue-600 text-white shadow-md shadow-blue-200 border-blue-600";
+            return "bg-red-600 text-white shadow-md shadow-red-200 border-red-600";
         }
         return isList
             ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent"
-            : "bg-gray-50 text-gray-700 border-gray-100";
+            : "bg-white text-gray-700 border-gray-100";
     };
 
     const getBadgeClasses = (isActive: boolean) => {
         if (isActive) return "bg-white/20 text-white";
-        return "bg-gray-100 text-gray-500";
+        return "bg-gray-100 text-gray-600";
     };
 
     return (

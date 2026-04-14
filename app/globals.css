@@ -46,29 +46,3 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
 }
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 4s linear infinite;
-}
-
-@keyframes border-travel {
-  to {
-    stroke-dashoffset: -100;
-  }
-}
-
-.animate-border-travel {
-  stroke-dasharray: 30 70;
-  stroke-linecap: round;
-  animation: border-travel 3s linear infinite;
-}

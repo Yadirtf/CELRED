@@ -32,22 +32,22 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
                 {/* Close Button Mobile */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 md:hidden z-10 p-2 bg-white/80 rounded-full"
+                    className="absolute top-4 right-4 md:hidden z-10 p-2 bg-white/80 backdrop-blur-md rounded-full shadow-sm"
                 >
-                    <X className="w-6 h-6 text-gray-500" />
+                    <X className="w-6 h-6 text-gray-800" />
                 </button>
 
                 {/* Left: Image */}
-                <div className="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 relative">
+                <div className="w-full md:w-1/2 bg-[#F8F8FA] flex items-center justify-center p-8 relative">
                     <img
                         src={product.imageUrl || '/placeholder.png'}
                         alt={product.name}
-                        className="max-h-[60vh] object-contain drop-shadow-lg"
+                        className="max-h-[60vh] object-contain drop-shadow-xl"
                     />
                 </div>
 
@@ -55,7 +55,7 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                 <div className="w-full md:w-1/2 p-8 overflow-y-auto bg-white relative">
                     <button
                         onClick={onClose}
-                        className="hidden md:block absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="hidden md:block absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -63,29 +63,29 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                     <div className="space-y-6">
                         <div>
                             <div className="flex items-center gap-3 mb-3">
-                                <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-wide uppercase">
+                                <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-bold tracking-wide uppercase border border-gray-200">
                                     {brandName}
                                 </span>
                                 {product.stock === 0 && (
-                                    <span className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold tracking-wide uppercase">
+                                    <span className="inline-block px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-bold tracking-wide uppercase border border-red-100">
                                         Agotado
                                     </span>
                                 )}
                             </div>
-                            <h2 className="text-3xl font-bold text-gray-900 leading-tight">{product.name}</h2>
-                            <p className="text-lg font-semibold text-orange-600 mt-2">
+                            <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">{product.name}</h2>
+                            <p className="text-lg font-bold text-orange-600 mt-2">
                                 Financiación Disponible - Consulte con un asesor
                             </p>
                         </div>
 
                         <div className="prose prose-sm text-gray-600">
-                            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">Descripción</h3>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Descripción</h3>
                             <p>{product.description}</p>
                         </div>
 
                         {product.specs && (
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Especificaciones Técnicas</h3>
+                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Especificaciones Técnicas</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <SpecItem label="Procesador" value={product.specs.processor} />
                                     <SpecItem label="RAM" value={product.specs.ram} />
@@ -116,8 +116,8 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
                                     {product.stock === 0 ? 'Agotado' : 'Lo quiero de contado'}
                                 </Button>
                             </div>
-                            <Button variant="ghost" className="w-full py-4" onClick={onClose}>
-                                Cerrar
+                            <Button variant="ghost" className="w-full py-4 text-gray-500 hover:text-gray-900 hover:bg-gray-50" onClick={onClose}>
+                                Cerrar Ventana
                             </Button>
                         </div>
                     </div>
@@ -130,9 +130,9 @@ export default function ProductDetailsModal({ isOpen, onClose, product }: Produc
 function SpecItem({ label, value }: { label: string, value?: string }) {
     if (!value) return null;
     return (
-        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-            <span className="block text-xs text-gray-500 font-medium mb-1">{label}</span>
-            <span className="block text-sm font-semibold text-gray-900 truncate" title={value}>{value}</span>
+        <div className="bg-gray-50 p-3 rounded-xl border border-gray-100/50">
+            <span className="block text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider">{label}</span>
+            <span className="block text-sm font-medium text-gray-900 truncate" title={value}>{value}</span>
         </div>
     );
 }
