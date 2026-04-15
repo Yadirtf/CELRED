@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICatalogVisitor extends Document {
     visitorId: string;
+    customerUUID?: string;
     ip: string;
     device: 'Mobile' | 'Tablet' | 'Desktop';
     browser: string;
@@ -16,6 +17,7 @@ export interface ICatalogVisitor extends Document {
 
 const CatalogVisitorSchema: Schema = new Schema({
     visitorId: { type: String, required: true, index: true },
+    customerUUID: { type: String, index: true },
     ip: { type: String, default: 'Desconocido' },
     device: { type: String, enum: ['Mobile', 'Tablet', 'Desktop'], default: 'Desktop' },
     browser: { type: String, default: 'Desconocido' },

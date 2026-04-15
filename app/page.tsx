@@ -9,9 +9,11 @@ import EmptyState from '@/components/ui/EmptyState';
 import CatalogFilter from '@/components/catalog/CatalogFilter';
 import CatalogSkeleton from '@/components/catalog/CatalogSkeleton';
 import LocationConsentBanner from '@/components/catalog/LocationConsentBanner';
+import PersonalizedRecommendations from '@/components/catalog/PersonalizedRecommendations';
 import { useAdvisor } from '@/hooks/useAdvisor';
 import { useProductCatalog } from '@/hooks/useProductCatalog';
 import { useCatalogPresence } from '@/hooks/useCatalogPresence';
+import { useCustomerIdentity } from '@/hooks/useCustomerIdentity';
 
 function CatalogContent() {
   const { assignedWhatsApp, isLoadingAdvisor } = useAdvisor();
@@ -26,13 +28,34 @@ function CatalogContent() {
     setSearchTerm,
   } = useProductCatalog();
 
+  // Persistent Identity
+  const { customerUUID } = useCustomerIdentity();
+  
   // Register this tab as an active catalog viewer
-  const { sendExactLocation } = useCatalogPresence();
+  const { sendExactLocation } = useCatalogPresence(customerUUID);
+
+  const trackInteraction = (eventType: string, product: Product, preference?: string) => {
+    if (!customerUUID) return;
+    fetch('/api/tracking/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerUUID,
+        eventType,
+        productId: product.id,
+        productName: product.name,
+        preference
+      })
+    }).catch(() => {});
+  };
 
   const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
   const handleWhatsAppClick = (product: Product, opcion: 'financiado' | 'de contado') => {
+    // 1. Log the intent directly to the tracking history
+    trackInteraction('WHATSAPP_START', product, opcion === 'financiado' ? 'FINANCIADO' : 'CONTADO');
+
     if (!assignedWhatsApp) {
       if (!isLoadingAdvisor) {
         alert('No hay asesores disponibles en este momento. Por favor, intenta más tarde.');
@@ -50,6 +73,9 @@ function CatalogContent() {
   };
 
   const handleView = (product: Product) => {
+    // Log the product view
+    trackInteraction('PRODUCT_VIEW', product);
+    
     setViewingProduct(product);
     setIsViewOpen(true);
   };
@@ -69,6 +95,13 @@ function CatalogContent() {
   return (
     <div className="space-y-6">
       <HeroSection />
+
+      <PersonalizedRecommendations 
+        customerUUID={customerUUID} 
+        allProducts={products} 
+        onWhatsApp={handleWhatsAppClick} 
+        onView={handleView} 
+      />
 
       <div className="flex flex-col lg:flex-row gap-8">
         <CatalogFilter {...filterProps} />

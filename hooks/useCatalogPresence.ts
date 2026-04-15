@@ -6,7 +6,7 @@ const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
  * Registers the current browser tab as an active catalog viewer.
  * Sends a heartbeat every 30s and cleans up on page unload.
  */
-export function useCatalogPresence() {
+export function useCatalogPresence(customerUUID: string | null) {
     const [visitorId, setVisitorId] = useState<string>('');
 
     useEffect(() => {
@@ -31,19 +31,25 @@ export function useCatalogPresence() {
 
         // Send heartbeat
         const sendHeartbeat = (newSession = false) => {
+            // Cannot send full data if UUID is not loaded yet
+            if (!customerUUID && newSession) return;
+
             fetch('/api/catalog-stats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     visitorId: id,
+                    customerUUID, // inject persistent identity
                     isNewSession: newSession,
                     ...(newSession ? clientData : {}),
                 }),
             }).catch(() => { /* silently fail */ });
         };
 
-        // Initial heartbeat
-        sendHeartbeat(isNewSession);
+        // If UUID is ready, trigger the first heartbeat
+        if (customerUUID) {
+            sendHeartbeat(isNewSession);
+        }
 
         // Periodic heartbeat
         const interval = setInterval(() => sendHeartbeat(false), HEARTBEAT_INTERVAL_MS);
@@ -67,7 +73,7 @@ export function useCatalogPresence() {
             // Also try to clean up on React unmount
             handleUnload();
         };
-    }, []);
+    }, [customerUUID]); // Re-run effect when UUID resolves from localstorage
 
     const sendExactLocation = async (exactLocation: { city: string, region: string, country: string }) => {
         if (!visitorId) return;

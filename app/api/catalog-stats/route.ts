@@ -1,31 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/infrastructure/database/mongoose';
 import CatalogStatsModel from '@/infrastructure/models/CatalogStatsModel';
-import CatalogVisitorModel from '@/infrastructure/models/CatalogVisitorModel';
 import {
     registerHeartbeat,
     removeViewer,
     getActiveCount,
     shouldCountAsNewVisit,
 } from '@/lib/catalogViewerStore';
-import { parseUserAgent } from '@/lib/parseUserAgent';
-import { geolocateIp } from '@/lib/geolocateIp';
+import { TrackingService } from '@/services/trackingService';
 
 /**
  * Extract the client IP from request headers.
- * Works with Vercel, Cloudflare, Nginx, and most reverse proxies.
  */
 function getClientIp(request: NextRequest): string {
-    // Vercel-specific header
     const xForwardedFor = request.headers.get('x-forwarded-for');
-    if (xForwardedFor) {
-        // x-forwarded-for can contain multiple IPs: client, proxy1, proxy2
-        return xForwardedFor.split(',')[0].trim();
-    }
-
+    if (xForwardedFor) return xForwardedFor.split(',')[0].trim();
     const xRealIp = request.headers.get('x-real-ip');
     if (xRealIp) return xRealIp.trim();
-
     return 'Desconocido';
 }
 
@@ -33,73 +24,35 @@ function getClientIp(request: NextRequest): string {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { visitorId, isNewSession, referrer, screenResolution, exactLocation } = body;
+        const { visitorId, customerUUID, isNewSession, referrer, screenResolution, exactLocation } = body;
 
         if (!visitorId) {
             return NextResponse.json({ error: 'visitorId required' }, { status: 400 });
         }
 
+        // Handle async exact location update
         if (exactLocation) {
-            await dbConnect();
-            await CatalogVisitorModel.findOneAndUpdate(
-                { visitorId },
-                {
-                    $set: {
-                        city: exactLocation.city,
-                        region: exactLocation.region,
-                        country: exactLocation.country,
-                        // Append (GPS) to the city name to easily identify it in the dashboard
-                        device: exactLocation.device || undefined
-                    }
-                }
-            );
+            await TrackingService.updateExactLocation(visitorId, exactLocation);
             return NextResponse.json({ ok: true });
         }
 
+        // Keep active viewer count running
         registerHeartbeat(visitorId);
 
-        // On new session: increment counter + save visitor record with analytics
+        // Process full tracking if it's the first time we see this session
         if (isNewSession && shouldCountAsNewVisit(visitorId)) {
-            await dbConnect();
-
-            // Increment total visits counter
-            await CatalogStatsModel.findOneAndUpdate(
-                {},
-                { $inc: { totalVisits: 1 } },
-                { upsert: true, new: true }
-            );
-
-            // Capture visitor analytics
             const ip = getClientIp(request);
             const userAgent = request.headers.get('user-agent') || '';
-            const parsed = parseUserAgent(userAgent);
 
-            // Geolocation must be awaited — in serverless (Vercel), the runtime
-            // terminates after the response is sent, killing any pending async work.
-            let geo = { city: 'Desconocido', region: 'Desconocido', country: 'Desconocido' };
-            try {
-                geo = await geolocateIp(ip);
-            } catch {
-                // Geo failed — proceed with defaults
-            }
-
-            try {
-                await CatalogVisitorModel.create({
-                    visitorId,
-                    ip,
-                    device: parsed.device,
-                    browser: parsed.browser,
-                    os: parsed.os,
-                    city: geo.city,
-                    region: geo.region,
-                    country: geo.country,
-                    referrer: referrer || 'Directo',
-                    screenResolution: screenResolution || 'Desconocido',
-                    visitedAt: new Date(),
-                });
-            } catch (err) {
-                console.error('Error saving visitor record:', err);
-            }
+            await TrackingService.registerNewVisit({
+                visitorId,
+                customerUUID,
+                isNewSession,
+                referrer,
+                screenResolution,
+                ip,
+                userAgent
+            });
         }
 
         return NextResponse.json({ ok: true });
