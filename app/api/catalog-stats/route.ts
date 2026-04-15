@@ -33,10 +33,27 @@ function getClientIp(request: NextRequest): string {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { visitorId, isNewSession, referrer, screenResolution } = body;
+        const { visitorId, isNewSession, referrer, screenResolution, exactLocation } = body;
 
         if (!visitorId) {
             return NextResponse.json({ error: 'visitorId required' }, { status: 400 });
+        }
+
+        if (exactLocation) {
+            await dbConnect();
+            await CatalogVisitorModel.findOneAndUpdate(
+                { visitorId },
+                {
+                    $set: {
+                        city: exactLocation.city,
+                        region: exactLocation.region,
+                        country: exactLocation.country,
+                        // Append (GPS) to the city name to easily identify it in the dashboard
+                        device: exactLocation.device || undefined
+                    }
+                }
+            );
+            return NextResponse.json({ ok: true });
         }
 
         registerHeartbeat(visitorId);

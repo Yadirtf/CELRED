@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
 
@@ -7,12 +7,12 @@ const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
  * Sends a heartbeat every 30s and cleans up on page unload.
  */
 export function useCatalogPresence() {
-    const visitorIdRef = useRef<string>('');
+    const [visitorId, setVisitorId] = useState<string>('');
 
     useEffect(() => {
         // Generate a unique ID for this tab session
         const id = crypto.randomUUID();
-        visitorIdRef.current = id;
+        setVisitorId(id);
 
         // Check if this is a new session (not a reload that already counted)
         const SESSION_KEY = 'catalog_visit_counted';
@@ -68,4 +68,20 @@ export function useCatalogPresence() {
             handleUnload();
         };
     }, []);
+
+    const sendExactLocation = async (exactLocation: { city: string, region: string, country: string }) => {
+        if (!visitorId) return;
+        try {
+            await fetch('/api/catalog-stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    visitorId,
+                    exactLocation
+                }),
+            });
+        } catch { /* silently fail */ }
+    };
+
+    return { visitorId, sendExactLocation };
 }

@@ -8,6 +8,7 @@ import HeroSection from '@/components/catalog/HeroSection';
 import EmptyState from '@/components/ui/EmptyState';
 import CatalogFilter from '@/components/catalog/CatalogFilter';
 import CatalogSkeleton from '@/components/catalog/CatalogSkeleton';
+import LocationConsentBanner from '@/components/catalog/LocationConsentBanner';
 import { useAdvisor } from '@/hooks/useAdvisor';
 import { useProductCatalog } from '@/hooks/useProductCatalog';
 import { useCatalogPresence } from '@/hooks/useCatalogPresence';
@@ -26,7 +27,7 @@ function CatalogContent() {
   } = useProductCatalog();
 
   // Register this tab as an active catalog viewer
-  useCatalogPresence();
+  const { sendExactLocation } = useCatalogPresence();
 
   const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -111,6 +112,8 @@ function CatalogContent() {
         onClose={() => setIsViewOpen(false)}
         product={viewingProduct}
       />
+
+      <LocationConsentBanner onLocationGranted={sendExactLocation} />
     </div>
   );
 }
