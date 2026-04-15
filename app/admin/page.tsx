@@ -8,8 +8,9 @@ import ReferencesTab from '@/components/admin/ReferencesTab';
 import QuickNoteList from '@/components/admin/QuickNoteList';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { LogOut, MessageSquareCode } from 'lucide-react';
+import { LogOut, MessageSquareCode, BarChart3 } from 'lucide-react';
 import CatalogViewerStats from '@/components/admin/CatalogViewerStats';
+import VisitorAnalytics from '@/components/admin/VisitorAnalytics';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -79,6 +80,15 @@ export default function AdminPage() {
                 >
                     📋 Referencias
                 </button>
+                <button
+                    className={`py-2 px-4 text-sm font-medium whitespace-nowrap ${activeTab === 'audience' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setActiveTab('audience')}
+                >
+                    <span className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Audiencia
+                    </span>
+                </button>
             </div>
 
             {/* Tab Content */}
@@ -96,6 +106,8 @@ export default function AdminPage() {
                 {activeTab === 'quick-notes' && <QuickNoteList />}
 
                 {activeTab === 'references' && <ReferencesTab />}
+
+                {activeTab === 'audience' && <VisitorAnalytics />}
             </main>
         </div>
     );

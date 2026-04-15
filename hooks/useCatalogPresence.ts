@@ -23,6 +23,12 @@ export function useCatalogPresence() {
             sessionStorage.setItem(SESSION_KEY, 'true');
         }
 
+        // Collect client-side analytics data (only needed for first heartbeat)
+        const clientData = {
+            referrer: document.referrer || 'Directo',
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
+        };
+
         // Send heartbeat
         const sendHeartbeat = (newSession = false) => {
             fetch('/api/catalog-stats', {
@@ -31,6 +37,7 @@ export function useCatalogPresence() {
                 body: JSON.stringify({
                     visitorId: id,
                     isNewSession: newSession,
+                    ...(newSession ? clientData : {}),
                 }),
             }).catch(() => { /* silently fail */ });
         };
