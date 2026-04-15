@@ -52,31 +52,37 @@ export async function POST(request: NextRequest) {
                 { upsert: true, new: true }
             );
 
-            // Capture visitor analytics (non-blocking)
+            // Capture visitor analytics
             const ip = getClientIp(request);
             const userAgent = request.headers.get('user-agent') || '';
             const parsed = parseUserAgent(userAgent);
 
-            // Geolocation runs async — don't block the response
-            geolocateIp(ip).then(async (geo) => {
-                try {
-                    await CatalogVisitorModel.create({
-                        visitorId,
-                        ip,
-                        device: parsed.device,
-                        browser: parsed.browser,
-                        os: parsed.os,
-                        city: geo.city,
-                        region: geo.region,
-                        country: geo.country,
-                        referrer: referrer || 'Directo',
-                        screenResolution: screenResolution || 'Desconocido',
-                        visitedAt: new Date(),
-                    });
-                } catch (err) {
-                    console.error('Error saving visitor record:', err);
-                }
-            }).catch(() => { /* silently fail geo+save */ });
+            // Geolocation must be awaited — in serverless (Vercel), the runtime
+            // terminates after the response is sent, killing any pending async work.
+            let geo = { city: 'Desconocido', region: 'Desconocido', country: 'Desconocido' };
+            try {
+                geo = await geolocateIp(ip);
+            } catch {
+                // Geo failed — proceed with defaults
+            }
+
+            try {
+                await CatalogVisitorModel.create({
+                    visitorId,
+                    ip,
+                    device: parsed.device,
+                    browser: parsed.browser,
+                    os: parsed.os,
+                    city: geo.city,
+                    region: geo.region,
+                    country: geo.country,
+                    referrer: referrer || 'Directo',
+                    screenResolution: screenResolution || 'Desconocido',
+                    visitedAt: new Date(),
+                });
+            } catch (err) {
+                console.error('Error saving visitor record:', err);
+            }
         }
 
         return NextResponse.json({ ok: true });

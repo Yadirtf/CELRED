@@ -1,5 +1,9 @@
 /**
- * IP Geolocation using ip-api.com (free, no API key, 45 req/min).
+ * IP Geolocation with multi-provider fallback.
+ * 
+ * Primary:  ip-api.com  (HTTP, free, 45 req/min)
+ * Fallback: ipapi.co    (HTTPS, free, 1000 req/day)
+ * 
  * Includes in-memory cache with 1-hour TTL to avoid redundant lookups.
  */
 
@@ -35,6 +39,55 @@ function pruneCache() {
     }
 }
 
+async function fetchWithTimeout(url: string, timeoutMs = 5000): Promise<Response> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        return res;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+/** Primary: ip-api.com (HTTP) */
+async function tryIpApi(ip: string): Promise<GeoResult | null> {
+    try {
+        const res = await fetchWithTimeout(
+            `http://ip-api.com/json/${ip}?fields=status,city,regionName,country`
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.status !== 'success') return null;
+        return {
+            city: data.city || 'Desconocido',
+            region: data.regionName || 'Desconocido',
+            country: data.country || 'Desconocido',
+        };
+    } catch {
+        return null;
+    }
+}
+
+/** Fallback: ipapi.co (HTTPS, no API key for basic usage) */
+async function tryIpapiCo(ip: string): Promise<GeoResult | null> {
+    try {
+        const res = await fetchWithTimeout(
+            `https://ipapi.co/${ip}/json/`
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.error) return null;
+        return {
+            city: data.city || 'Desconocido',
+            region: data.region || 'Desconocido',
+            country: data.country_name || 'Desconocido',
+        };
+    } catch {
+        return null;
+    }
+}
+
 export async function geolocateIp(ip: string): Promise<GeoResult> {
     // Skip private/local IPs
     if (!ip || PRIVATE_IP_REGEX.test(ip)) {
@@ -47,40 +100,17 @@ export async function geolocateIp(ip: string): Promise<GeoResult> {
         return cached.data;
     }
 
-    try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    // Try primary, then fallback
+    const result = await tryIpApi(ip) || await tryIpapiCo(ip) || UNKNOWN;
 
-        const res = await fetch(
-            `http://ip-api.com/json/${ip}?fields=status,city,regionName,country`,
-            { signal: controller.signal }
-        );
+    // Cache the result (even UNKNOWN to avoid repeated failed lookups)
+    geoCache.set(ip, {
+        data: result,
+        expiresAt: Date.now() + (result === UNKNOWN ? 5 * 60 * 1000 : CACHE_TTL_MS),
+    });
 
-        clearTimeout(timeout);
+    // Periodic cleanup
+    if (geoCache.size % 100 === 0) pruneCache();
 
-        if (!res.ok) return UNKNOWN;
-
-        const data = await res.json();
-
-        if (data.status !== 'success') return UNKNOWN;
-
-        const result: GeoResult = {
-            city: data.city || 'Desconocido',
-            region: data.regionName || 'Desconocido',
-            country: data.country || 'Desconocido',
-        };
-
-        // Cache the result
-        geoCache.set(ip, {
-            data: result,
-            expiresAt: Date.now() + CACHE_TTL_MS,
-        });
-
-        // Periodic cache cleanup (every 100 lookups)
-        if (geoCache.size % 100 === 0) pruneCache();
-
-        return result;
-    } catch {
-        return UNKNOWN;
-    }
+    return result;
 }

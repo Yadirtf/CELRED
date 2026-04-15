@@ -59,13 +59,11 @@ interface LiveStats {
 // ── Helpers ──
 
 function maskIp(ip: string): string {
-    if (!ip || ip === 'Desconocido') return ip;
-    const parts = ip.split('.');
-    if (parts.length === 4) {
-        return `${parts[0]}.${parts[1]}.xxx.xxx`;
-    }
-    // IPv6 or unusual
-    return ip.slice(0, 12) + '...';
+    // DEV: Mostrar IP completa para pruebas.
+    // En producción, descomentar la lógica de abajo:
+    // const parts = ip.split('.');
+    // if (parts.length === 4) return `${parts[0]}.${parts[1]}.${parts[2]}.xxx`;
+    return ip;
 }
 
 function formatDate(dateStr: string): string {
