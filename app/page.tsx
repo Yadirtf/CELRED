@@ -10,6 +10,7 @@ import CatalogFilter from '@/components/catalog/CatalogFilter';
 import CatalogSkeleton from '@/components/catalog/CatalogSkeleton';
 import { useAdvisor } from '@/hooks/useAdvisor';
 import { useProductCatalog } from '@/hooks/useProductCatalog';
+import { useCatalogPresence } from '@/hooks/useCatalogPresence';
 
 function CatalogContent() {
   const { assignedWhatsApp, isLoadingAdvisor } = useAdvisor();
@@ -23,6 +24,9 @@ function CatalogContent() {
     searchTerm,
     setSearchTerm,
   } = useProductCatalog();
+
+  // Register this tab as an active catalog viewer
+  useCatalogPresence();
 
   const [viewingProduct, setViewingProduct] = useState<Product | undefined>(undefined);
   const [isViewOpen, setIsViewOpen] = useState(false);

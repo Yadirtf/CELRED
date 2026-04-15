@@ -9,6 +9,7 @@ import QuickNoteList from '@/components/admin/QuickNoteList';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { LogOut, MessageSquareCode } from 'lucide-react';
+import CatalogViewerStats from '@/components/admin/CatalogViewerStats';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -26,15 +27,21 @@ export default function AdminPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div className="space-y-1">
                     <h1 className="text-3xl font-bold text-gray-800">Panel de Administración</h1>
-                    <p className="text-gray-500">Gestiona tus productos y configuraciones.</p>
+                    <div className="flex items-center gap-3">
+                        <p className="text-gray-500">Gestiona tus productos y configuraciones.</p>
+                    </div>
                 </div>
-                <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2">
-                    <LogOut className="w-5 h-5" />
-                    Cerrar Sesión
-                </Button>
+                <div className="flex items-center gap-3">
+                    <CatalogViewerStats />
+                    <div className="w-px h-8 bg-gray-200 hidden sm:block" />
+                    <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2">
+                        <LogOut className="w-5 h-5" />
+                        Cerrar Sesión
+                    </Button>
+                </div>
             </div>
 
             {/* Tab Navigation */}
